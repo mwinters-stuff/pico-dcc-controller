@@ -25,6 +25,11 @@ endif()
 # ====================================================================================
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
+# Disable optimization for debug builds
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+
+
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -41,13 +46,22 @@ includeLibraries()
 
 add_executable(pico-dcc-controller 
     src/main.cpp
-    src/wifi_scan.cpp )
+    src/main_core1.cpp
+    src/wifi_scan.cpp 
+    src/display_controls.cpp
+    libs/u8g2pico/u8g2functions.cpp
+    libs/fonts/u8g2_font_bauhaus2015_tr.c
+    libs/fonts/u8g2_font_glasstown_nbp_t_all.c
+    libs/fonts/u8g2_font_profont29_tn.c
+    libs/fonts/u8g2_font_unifont_t_cyrillic.c
+    src/keypad_scan.cpp
+    )
 
 pico_set_program_name(pico-dcc-controller "pico-dcc-controller")
 pico_set_program_version(pico-dcc-controller "0.1")
 
 # Generate PIO header
-pico_generate_pio_header(pico-dcc-controller ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
+# pico_generate_pio_header(pico-dcc-controller ${CMAKE_CURRENT_LIST_DIR}/src/keypad_scan.pio)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(pico-dcc-controller 1)
@@ -60,13 +74,14 @@ target_link_libraries(pico-dcc-controller
 # Add the standard include files to the build
 target_include_directories(pico-dcc-controller PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        libs/u8g2pico
 )
 
 # Add any user requested libraries
 target_link_libraries(pico-dcc-controller 
         hardware_i2c
         # hardware_dma
-        # hardware_pio
+        hardware_pio
         # hardware_interp
         # hardware_timer
         # hardware_watchdog
@@ -74,6 +89,9 @@ target_link_libraries(pico-dcc-controller
         pico_multicore
         pico_cyw43_arch_lwip_threadsafe_background
         Versatile_RotaryEncoder
+        u8g2
+        MuiPlusPlus
+        # DCCEXProtocol
         )
 
 pico_add_extra_outputs(pico-dcc-controller)
