@@ -44,15 +44,15 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(MuiPlusPlus)
 
-# FetchContent_Declare(
-#   DCCEXProtocol
-#   GIT_REPOSITORY    https://github.com/DCC-EX/DCCEXProtocol.git
-#   GIT_TAG           main
-#   GIT_SHALLOW       1
-#   # SOURCE_SUBDIR     cmake
-# )
+FetchContent_Declare(
+  DCCEXProtocol
+  GIT_REPOSITORY    https://github.com/mwinters-stuff/DCCEXProtocol.git
+  GIT_TAG           main
+  GIT_SHALLOW       1
+  # SOURCE_SUBDIR     cmake
+)
 
-# FetchContent_MakeAvailable(DCCEXProtocol)
+FetchContent_MakeAvailable(DCCEXProtocol)
 
 
 

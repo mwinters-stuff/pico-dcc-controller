@@ -4,6 +4,8 @@
 #include <memory>
 #include <muipp_u8g2.hpp>
 #include <functional>
+#include <pico/types.h>
+#include <pico/time.h>
 
 #include "mui_menu.h"
 
@@ -16,15 +18,20 @@
 
 */
 class DisplayControls {
+  private:
   u8g2_t u8g2;
   
-  using BuildPassEntryFunction = std::function<void(u8g2_t &, DisplayControls *)>;
+  using BuildPassEntryFunction = std::function<void(u8g2_t &)>;
   
   // screen refresh required flag
   volatile bool redrawDisplay{true};
 
   // a placeholder for our menu object, initially empty
   std::shared_ptr<MuiMenu> currentMenu;
+
+  absolute_time_t last_activity_time = get_absolute_time();
+  bool is_display_sleeping = false;
+
 
   /**
    * @brief this method will dispatch events from OK button and virtual encoder
@@ -71,6 +78,13 @@ class DisplayControls {
   void handlePressRelease();
   void handleLongPressRelease();
 
+  void showBasicMiddleLine(const char *midLine);
+
+  void showBasicTwoLine(const char *topLine, const char *bottomLine);
+
+  void showBasicThreeLines(const char *firstLine, const char *secondLine,
+                           const char *thirdLine);
+
  public:
   // constructor
   DisplayControls();
@@ -81,6 +95,10 @@ class DisplayControls {
   // start our display control
   void begin();
 
+  void loop();
+
+  uint32_t getDisplaySleepMicros();
+
   // draw something on screen, either some sily stub text, or render menu
   void drawScreen();
 
@@ -89,10 +107,18 @@ class DisplayControls {
 
 
   void showScreen(std::shared_ptr<MuiMenu> menu, BuildPassEntryFunction buildPassEntryFunction);
-  void showScreen(BuildPassEntryFunction buildPassEntryFunction);
+  void showScreen2(BuildPassEntryFunction buildPassEntryFunction);
 
   void setRedraw();
   void SetPowerSave(bool on);
+
+
+  void showWifiError();
+  void showWifiConnecting();
+  void showWifiConnectionFailed();
+  void showWifiConnected();
+  void showDCCFailedConnection(const char* name);
+  void showConnectTo(const char* name);
 };
 
 #endif

@@ -63,9 +63,15 @@ void WifiScan::scanWifi() {
       scan_in_progress = false;
     }
   }
+
+  displayControls->showScreen(sharedThis,
+    [this](u8g2_t &u8g2) {
+      buildMenu(u8g2);
+    });
+
 }
 
-void WifiScan::buildMenu(u8g2_t &u8g2, DisplayControls *displayControls) {
+void WifiScan::buildMenu(u8g2_t &u8g2) {
   // create root page
   muiItemId root_page = makePage("Wifi Scan");  // provide a label for the page
 
@@ -96,13 +102,13 @@ void WifiScan::buildMenu(u8g2_t &u8g2, DisplayControls *displayControls) {
       // next callback is called by DynamicScrollList to find out the size
       // (total number) of elements in a list
       [this]() { return scanResults.size() + 1; },
-      [this, displayControls](size_t index) {
+      [this](size_t index) {
         if (index < scanResults.size()) {
           printf("Selected: %s\n", ssidList.at(index).c_str());
           selectedIndex = index;
-          displayControls->showScreen(
-              [this](u8g2_t &u8g2, DisplayControls *displayControls) {
-                this->buildPassEntry(u8g2, displayControls);
+          this->displayControls->showScreen(sharedThis,
+              [this](u8g2_t &u8g2) {
+                this->buildPassEntry(u8g2);
               });
 
         } else {
@@ -160,7 +166,7 @@ void WifiScan::buildMenu(u8g2_t &u8g2, DisplayControls *displayControls) {
   this->displayControls = displayControls;
 }
 
-void WifiScan::buildPassEntry(u8g2_t &u8g2, DisplayControls *displayControls) {
+void WifiScan::buildPassEntry(u8g2_t &u8g2) {
   // create root page
   muiItemId root_page =
       makePage("Wifi AP Password");  // provide a label for the page
@@ -180,4 +186,10 @@ void WifiScan::buildPassEntry(u8g2_t &u8g2, DisplayControls *displayControls) {
 
   menuStart(root_page);
   this->displayControls = displayControls;
+}
+
+void WifiScan::clearAction() {}
+
+void WifiScan::doAction() {
+
 }

@@ -1,6 +1,6 @@
 // pico_keypad.h
-#ifndef PICO_KEYPAD_H
-#define PICO_KEYPAD_H
+#ifndef _PICO_KEYPAD_H
+#define _PICO_KEYPAD_H
 
 #include <stdint.h>
 #include <hardware/pio.h>

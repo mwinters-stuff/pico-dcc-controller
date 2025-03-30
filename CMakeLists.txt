@@ -44,18 +44,13 @@ include(libraries.cmake)
 includeLibraries()
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(pico-dcc-controller 
-    src/main.cpp
-    src/main_core1.cpp
-    src/wifi_scan.cpp 
-    src/display_controls.cpp
-    libs/u8g2pico/u8g2functions.cpp
-    libs/fonts/u8g2_font_bauhaus2015_tr.c
-    libs/fonts/u8g2_font_glasstown_nbp_t_all.c
-    libs/fonts/u8g2_font_profont29_tn.c
-    libs/fonts/u8g2_font_unifont_t_cyrillic.c
-    src/keypad_scan.cpp
-    )
+file(GLOB_RECURSE SRC 
+    src/*.cpp
+    libs/u8g2pico/*.cpp
+    libs/fonts/*.c
+)
+
+add_executable(pico-dcc-controller ${SRC})
 
 pico_set_program_name(pico-dcc-controller "pico-dcc-controller")
 pico_set_program_version(pico-dcc-controller "0.1")
@@ -87,11 +82,11 @@ target_link_libraries(pico-dcc-controller
         # hardware_watchdog
         # hardware_clocks
         pico_multicore
-        pico_cyw43_arch_lwip_threadsafe_background
+        pico_cyw43_arch_lwip_poll
         Versatile_RotaryEncoder
         u8g2
         MuiPlusPlus
-        # DCCEXProtocol
+        DCCEXProtocol
         )
 
 pico_add_extra_outputs(pico-dcc-controller)

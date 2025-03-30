@@ -1,5 +1,5 @@
-#ifndef MAIN_CORE1_H
-#define MAIN_CORE1_H
+#ifndef _MAIN_CORE1_H
+#define _MAIN_CORE1_H
 
 #include "defines.h"
 
