@@ -78,7 +78,7 @@ target_link_libraries(pico-dcc-controller
         # hardware_dma
         hardware_pio
         # hardware_interp
-        # hardware_timer
+        hardware_timer
         # hardware_watchdog
         # hardware_clocks
         pico_multicore

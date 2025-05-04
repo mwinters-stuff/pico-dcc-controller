@@ -58,6 +58,7 @@ public:
             printf("Buffer freed\n");
              fflush(stdout);
         }
+        printf("%c", byte);
         return byte;
     }
 
@@ -123,5 +124,73 @@ public:
         }
     }
 };
+
+
+class LoggingStream : public DCCExController::DCCStream {
+    
+    public:
+        explicit LoggingStream(struct tcp_pcb *pcb) {
+        }
+    
+        // Check if data is available to read
+        int available() const {
+            return 0;
+        }
+    
+        // Read a single byte from the socket
+        int read() {
+            return 0;
+        }
+    
+        // Write a buffer to the socket
+        size_t write(const uint8_t *buffer, size_t size) {
+            return 0; // Error
+        }
+    
+        // No-op for sockets (no explicit flushing needed)
+        void flush() {}
+    
+        // Send a string with a newline
+        void println(const char* format, ...){
+            char buffer[256];
+            
+            va_list args;     // Declare the variable argument list
+    
+            // Initialize the variable argument list
+            va_start(args, format);
+    
+            // Use vsnprintf to format the string into the buffer
+            vsnprintf(buffer, sizeof(buffer), format, args);
+    
+            // End the variable argument list
+            va_end(args);
+    
+    
+            printf(buffer);
+            printf("\n");
+        }
+    
+        // Send a string
+        void print(const char* format, ...) {
+            char buffer[256];
+            
+            va_list args;     // Declare the variable argument list
+    
+            // Initialize the variable argument list
+            va_start(args, format);
+    
+            // Use vsnprintf to format the string into the buffer
+            vsnprintf(buffer, sizeof(buffer), format, args);
+    
+            // End the variable argument list
+            va_end(args);
+    
+    
+            printf(buffer);
+        }
+    
+        // Destructor to close the socket
+        ~LoggingStream() {}
+    };
 
 #endif

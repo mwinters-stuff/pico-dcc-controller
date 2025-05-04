@@ -18,7 +18,7 @@ int main() {
   auto displayControls = std::make_shared<DisplayControls>();
   displayControls->begin();
 
-  auto wifiControl = std::make_shared<WifiControl>(displayControls);
+  auto wifiControl = WifiControl::initInstance(displayControls);
   if(!wifiControl->connect()){
     return 1;
   }
@@ -29,8 +29,9 @@ int main() {
   mainMenu->showMenu();
   
   while (true) {
-    displayControls->loop();
-    sleep_ms(10);  // Small delay to avoid busy looping
     cyw43_arch_poll();
+    displayControls->loop();
+    wifiControl->loop();
+    sleep_ms(10);  // Small delay to avoid busy looping
   }
 }

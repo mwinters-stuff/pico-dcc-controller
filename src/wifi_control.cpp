@@ -7,9 +7,15 @@
 #include "display_controls.h"
 #include "pico/cyw43_arch.h"
 #include "wifi_connection.h"
+#include <DCCEXProtocol.h>
+
+// Define the static instance variable
+std::shared_ptr<WifiControl> WifiControl::instance = nullptr;
+
 
 WifiControl::WifiControl(std::shared_ptr<DisplayControls> displayControls)
-    : displayControls(displayControls) {}
+    : displayControls(displayControls) {
+}
 
 bool WifiControl::connect() {
   // Initialise the Wi-Fi chip
@@ -89,44 +95,74 @@ void WifiControl::failError(err_t err) {
 
 // Function to initiate a connection to the server
 bool WifiControl::connectToServer(const char *server_ip, uint16_t port) {
-  ip_addr_t server_addr;
-  if (!ipaddr_aton(server_ip, &server_addr)) {
-    printf("Invalid IP address\n");
-    return false;
-  }
-
-  struct tcp_pcb *pcb = tcp_new();
-  if (pcb == nullptr) {
-    printf("Failed to create PCB\n");
-    return false;
-  }
-
-  // Attempt to connect
-  err_t err = tcp_connect(pcb, &server_addr, port, nullptr);
-  if (err != ERR_OK) {
-    displayControls->showDCCFailedConnection("failed");
-    printf("Failed to initiate connection: %d\n", err);
-    tcp_close(pcb);
-    return false;
-  }
-
-  // Poll for connection status
-  printf("Connecting to server...\n");
-  while (true) {
-    cyw43_arch_poll();
-    // Check the connection state
-    if (pcb->state == ESTABLISHED) {
-      printf("Connected to server: %s:%d\n", ipaddr_ntoa(&pcb->remote_ip),
-             pcb->remote_port);
-      return true;
-    } else if (pcb->state == CLOSED || pcb->state == TIME_WAIT ||
-               pcb->state == FIN_WAIT_1 || pcb->state == FIN_WAIT_2) {
-      printf("Connection failed or closed\n");
-      tcp_close(pcb);
-      return false;
+    ip_addr_t server_addr;
+    
+    if (!ipaddr_aton(server_ip, &server_addr)) {
+        printf("Invalid IP address\n");
+        return false;
     }
 
-    // Add a small delay to avoid busy-waiting
-    sleep_ms(100);
+    struct tcp_pcb *pcb = tcp_new();
+    if (pcb == nullptr) {
+        printf("Failed to create PCB\n");
+        return false;
+    }
+
+    // Attempt to connect
+    err_t err = tcp_connect(pcb, &server_addr, port, nullptr);
+    if (err != ERR_OK) {
+        printf("Failed to initiate connection: %d\n", err);
+        tcp_close(pcb);
+        return false;
+    }
+
+    // Poll for connection status
+    printf("Connecting to server...\n");
+    isConnected = false;
+    while (!isConnected) {
+        cyw43_arch_poll();
+
+        // Check the connection state
+        if (pcb->state == ESTABLISHED) {
+            printf("Connected to server: %s:%d\n", ipaddr_ntoa(&pcb->remote_ip), pcb->remote_port);
+            
+            stream = new TCPSocketStream(pcb);
+            logStream = new LoggingStream(nullptr);
+            dccExProtocol = std::make_shared<DCCExController::DCCEXProtocol>();
+            
+            dccExProtocol->setLogStream(logStream);
+            dccExProtocol->setDelegate(&dccDelegate);
+            dccExProtocol->connect(stream);
+            dccExProtocol->enableHeartbeat();
+            // dccExProtocol->check();
+            // int m = dccExProtocol->getMajorVersion();
+            // int n = dccExProtocol->getMinorVersion();
+            // int p = dccExProtocol->getPatchVersion(); 
+            // char x[20];
+            // sprintf(x, "%d.%d.%d", m, n, p);
+            // displayControls->showBasicTwoLine("Server Version", x);
+            // sleep_ms(2000);
+            // dccExProtocol->check();
+    
+            isConnected = true;
+        } else if (pcb->state == CLOSED || pcb->state == TIME_WAIT ||
+                   pcb->state == FIN_WAIT_1 || pcb->state == FIN_WAIT_2) {
+            printf("Connection failed or closed\n");
+            displayControls->showDCCFailedConnection("failed");
+            tcp_close(pcb);
+            return false;
+        }
+
+        // Add a small delay to avoid busy-waiting
+        sleep_ms(100);
+    }
+
+    // Cleanup and return success
+    return isConnected;
+}
+
+void WifiControl::loop(){
+  if(dccExProtocol){
+    dccExProtocol->check();
   }
 }

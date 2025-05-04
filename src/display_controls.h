@@ -78,12 +78,6 @@ class DisplayControls {
   void handlePressRelease();
   void handleLongPressRelease();
 
-  void showBasicMiddleLine(const char *midLine);
-
-  void showBasicTwoLine(const char *topLine, const char *bottomLine);
-
-  void showBasicThreeLines(const char *firstLine, const char *secondLine,
-                           const char *thirdLine);
 
  public:
   // constructor
@@ -112,6 +106,12 @@ class DisplayControls {
   void setRedraw();
   void SetPowerSave(bool on);
 
+  void showBasicMiddleLine(const char *midLine);
+
+  void showBasicTwoLine(const char *topLine, const char *bottomLine);
+
+  void showBasicThreeLines(const char *firstLine, const char *secondLine,
+                           const char *thirdLine);
 
   void showWifiError();
   void showWifiConnecting();

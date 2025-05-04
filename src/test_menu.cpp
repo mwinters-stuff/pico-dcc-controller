@@ -1,31 +1,19 @@
-#include "dcc_connection_menu.h"
+#include "test_menu.h"
 
 #include <stdio.h>
-#include <sstream>
 
 #include <muipp_u8g2.hpp>
 
 #include "defines.h"
-#include "../config.h"
 #include "display_controls.h"
 #include "pico/stdlib.h"
 #include "wifi_control.h"
-#include "test_menu.h"
 
-DCCConnectionMenu::DCCConnectionMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls){
-  parseDCCEXAddresses(DCCEX_ADDRESSES);
+TestMenu::TestMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls){
+
 }
 
-void DCCConnectionMenu::parseDCCEXAddresses(const std::string& input) {
-  std::stringstream ss(input);
-  std::string item;
-  addresses.clear();
-  while (std::getline(ss, item, ',')) {
-      addresses.push_back(item);
-  }
-}
-
-void DCCConnectionMenu::showMenu() {
+void TestMenu::showMenu() {
 
   displayControls->showScreen(sharedThis,
     [this](u8g2_t &u8g2) {
@@ -34,10 +22,9 @@ void DCCConnectionMenu::showMenu() {
 
 }
 
-void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
+void TestMenu::buildMenu(u8g2_t &u8g2) {
   // create root page
-  selectedIndex = -1;
-  muiItemId root_page = makePage("DCC Connect");  // provide a label for the page
+  muiItemId root_page = makePage("Test");  // provide a label for the page
 
   // create "Page title" item and assign it to root page
   addMuippItem(
@@ -53,17 +40,14 @@ void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
       u8g2,            // U8g2 object to draw to
       scroll_list_id,  // ID for the item
       [this](size_t index) {
-          auto fullStr = addresses.at(index);
-          auto delimiterPos = fullStr.find('|');
-          auto str = (delimiterPos != std::string::npos) ? fullStr.substr(0, delimiterPos) : fullStr;
-          return str.c_str();
+        return menu.at(index).label;
       },
       // next callback is called by DynamicScrollList to find out the size
       // (total number) of elements in a list
-      [this]() { return addresses.size(); },
+      [this]() { return menu.size(); },
       [this](size_t index) {
-          printf("Selected: %s\n", addresses.at(index).c_str());
-          selectedIndex = index;
+          selectedItem = menu.at(index);
+          printf("Selected: %s\n", selectedItem.label);
       },
       MAIN_MENU_Y_SHIFT,
       MAIN_MENU_ROWS,  // offset for each line of text and total number of lines
@@ -84,7 +68,7 @@ void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
 
   // this flag means that last item of a list will act as 'back' event, and will
   // try to retuen to the previous page/item
-  list->listopts.back_on_last = true;
+  list->listopts.back_on_last = false;
   // scroller here is the only active element on a page,
   // thre is no other items where we can move our cursor to
   // so let's set that an attempt to unselect this item will genreate "menuQuit"
@@ -100,40 +84,28 @@ void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
   // events by default
   pageAutoSelect(root_page, scroll_list_id);
 
-  addMuippItem(new MuiItem_U8g2_BackButton(u8g2, nextIndex(), "Back",
-  MAIN_MENU_FONT1), root_page);
+  // addMuippItem(new MuiItem_U8g2_BackButton(u8g2, nextIndex(), "Back",
+  // MAIN_MENU_FONT1), root_page);
 
   // start our menu from root page
   menuStart(root_page);
 
 }
 
-void DCCConnectionMenu::clearAction() {
-  selectedIndex = -1;
+void TestMenu::clearAction() {
+  selectedItem.value = miv_None;
 }
 
-void DCCConnectionMenu::doAction(){
-  if(selectedIndex != -1){
-    auto fullStr = addresses.at(selectedIndex);
-    auto delimiterPos = fullStr.find('|');
-    auto address = (delimiterPos != std::string::npos) ? fullStr.substr(delimiterPos + 1) : fullStr;
-    auto name = (delimiterPos != std::string::npos) ? fullStr.substr(0, delimiterPos) : fullStr;
-
-    printf("Connecting to server %s %s\n",name.c_str(), address.c_str());
-    displayControls->showConnectTo(name.c_str());
-
-
-// Function to initiate a connection to the server
-    auto wifiControl = WifiControl::getInstance();
-    if(wifiControl->connectToServer(address.c_str(), DCCEX_PORT)){
-      printf("Connected to server\n");
-      testMenu = std::make_shared<TestMenu>(displayControls);
-      testMenu->showMenu();
-    }else{
-      displayControls->showDCCFailedConnection("failed");
-      printf("Failed to connect to server\n");
-    }
+void TestMenu::doAction(){
+  switch(selectedItem.value){
+    case miv_RefreshLoco:
+      WifiControl::getInstance()->dccProtocol()->refreshRoster();
+      break;
+      case miv_TrackOn:
+      WifiControl::getInstance()->dccProtocol()->powerOn();
+      break;
+      case miv_TrackOff:
+      WifiControl::getInstance()->dccProtocol()->powerOff();
+      break;
   }
-
 }
-

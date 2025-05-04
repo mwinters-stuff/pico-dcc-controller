@@ -8,7 +8,7 @@
 #include "mui_menu.h"
 #include <memory>
 #include <string>
-
+#include "test_menu.h"
 
 class DisplayControls;
 
@@ -16,6 +16,7 @@ class DCCConnectionMenu : public MuiMenu {
  protected:
   size_t selectedIndex = -1;
   std::vector<std::string> addresses;
+  std::shared_ptr<TestMenu> testMenu;
  public:
  DCCConnectionMenu(std::shared_ptr<DisplayControls> displayControls);
  void parseDCCEXAddresses(const std::string &input);
