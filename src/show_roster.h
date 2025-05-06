@@ -1,12 +1,11 @@
-#ifndef _MAIN_MENU_H
-#define _MAIN_MENU_H
+#ifndef _SHOW_ROSTER_MENU_H
+#define _SHOW_ROSTER_MENU_H
 
 #include <u8g2.h>
 
 #include <vector>
 
 #include "mui_menu.h"
-#include "dcc_connection_menu.h"
 
 #include <memory>
 #include <string>
@@ -14,26 +13,20 @@
 
 class DisplayControls;
 
-class MainMenu : public MuiMenu {
+class ShowRosterMenu : public MuiMenu {
   private:
-  enum MENU_ITEM_VALUE{
-    miv_None = -1,
-    miv_ConnectToDCC = 0,
-  };
   struct menuItem{
-    MENU_ITEM_VALUE value;
+    uint8_t value;
     const char* label;
   };
  protected:
  menuItem selectedItem;
-  std::vector<menuItem> menu = {
-    {miv_ConnectToDCC, "Connect to DCC"}
-  };
-  std::shared_ptr<MuiMenu> connectionMenu;
+  std::vector<menuItem> menu;
+
 
  public:
-  MainMenu(std::shared_ptr<DisplayControls> displayControls);
-  virtual ~MainMenu() {};
+  ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls);
+  virtual ~ShowRosterMenu() {};
   
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
@@ -41,7 +34,7 @@ class MainMenu : public MuiMenu {
   bool doAction() override;
 
   static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls) {
-    auto ptr = std::make_shared<MainMenu>(displayControls);
+    auto ptr = std::make_shared<ShowRosterMenu>(displayControls);
     ptr->sharedThis = ptr;
     return ptr;
   }

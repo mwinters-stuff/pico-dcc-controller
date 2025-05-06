@@ -28,6 +28,8 @@ class DisplayControls {
 
   // a placeholder for our menu object, initially empty
   std::shared_ptr<MuiMenu> currentMenu;
+  std::vector<std::shared_ptr<MuiMenu> > previousMenus;
+  bool endCurrentScreen{false};
 
   absolute_time_t last_activity_time = get_absolute_time();
   bool is_display_sleeping = false;
@@ -63,7 +65,7 @@ class DisplayControls {
    * uderstand when mune has exit
    *
    */
-  void menu_ok_action();
+  // void menu_ok_action();
 
   /**
    * @brief this method I'll call when my "+/-" buttons are pressed and I need
@@ -71,7 +73,7 @@ class DisplayControls {
    * uderstand when mune has exit
    *
    */
-  void menu_encoder_action(int8_t rotation);
+  // void menu_encoder_action(int8_t rotation);
 
   // Rotary encoder callbacks
   void handleRotate(int8_t rotation);
@@ -102,6 +104,7 @@ class DisplayControls {
 
   void showScreen(std::shared_ptr<MuiMenu> menu, BuildPassEntryFunction buildPassEntryFunction);
   void showScreen2(BuildPassEntryFunction buildPassEntryFunction);
+  void endScreen();
 
   void setRedraw();
   void SetPowerSave(bool on);

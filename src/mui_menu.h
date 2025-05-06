@@ -14,12 +14,17 @@ class MuiMenu : public MuiPlusPlus {
   std::shared_ptr<MuiMenu> sharedThis;
 
  public:
-  MuiMenu(std::shared_ptr<DisplayControls> displayControls): displayControls(displayControls), sharedThis(this) {};
+  MuiMenu(std::shared_ptr<DisplayControls> displayControls): displayControls(displayControls) {};
   virtual ~MuiMenu(){};
 
   virtual void buildMenu(u8g2_t &u8g2) = 0;
+  virtual void showMenu() = 0;
   virtual void clearAction() = 0;
-  virtual void doAction() = 0;
+  virtual bool doAction() = 0;
+  
+   // Static factory method renamed to create
+   static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls);
+
 };
 
 #endif

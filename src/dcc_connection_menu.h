@@ -3,11 +3,11 @@
 
 #include <u8g2.h>
 
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "mui_menu.h"
-#include <memory>
-#include <string>
 #include "test_menu.h"
 
 class DisplayControls;
@@ -16,18 +16,24 @@ class DCCConnectionMenu : public MuiMenu {
  protected:
   size_t selectedIndex = -1;
   std::vector<std::string> addresses;
-  std::shared_ptr<TestMenu> testMenu;
+  std::shared_ptr<MuiMenu> testMenu;
+
  public:
- DCCConnectionMenu(std::shared_ptr<DisplayControls> displayControls);
- void parseDCCEXAddresses(const std::string &input);
- virtual ~DCCConnectionMenu() {};
+  DCCConnectionMenu(std::shared_ptr<DisplayControls> displayControls);
+  void parseDCCEXAddresses(const std::string &input);
+  virtual ~DCCConnectionMenu() {};
 
- void showMenu();
- void buildMenu(u8g2_t &u8g2);
- void clearAction();
- void doAction();
+  void showMenu() override;
+  void buildMenu(u8g2_t &u8g2) override;
+  void clearAction() override;
+  bool doAction() override;
 
- 
+  static std::shared_ptr<MuiMenu> create(
+      std::shared_ptr<DisplayControls> displayControls) {
+    auto ptr = std::make_shared<DCCConnectionMenu>(displayControls);
+    ptr->sharedThis = ptr;
+    return ptr;
+  }
 };
 
 #endif

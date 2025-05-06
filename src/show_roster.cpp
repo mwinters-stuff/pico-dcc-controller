@@ -1,4 +1,4 @@
-#include "main_menu.h"
+#include "show_roster.h"
 
 #include <stdio.h>
 
@@ -7,13 +7,28 @@
 #include "defines.h"
 #include "display_controls.h"
 #include "pico/stdlib.h"
-#include "dcc_connection_menu.h"
+#include "wifi_control.h"
 
-MainMenu::MainMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls){
-
+ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls), menu(){
+  auto loco = DCCExController::Loco::getFirst();
+  while (loco != nullptr) {
+    menuItem item;
+    item.value = loco->getAddress();
+    item.label = loco->getName();
+    menu.push_back(item);
+    loco = loco->getNext();
+  }
+  printf("Roster size: %d\n", menu.size());
+  for (const auto& item : menu) {
+    printf("Roster item: %d, %s\n", item.value, item.label);
+  }
+  menuItem item;
+  item.value = 0xff;
+  item.label = "Back";
+  menu.push_back(item);
 }
 
-void MainMenu::showMenu() {
+void ShowRosterMenu::showMenu() {
 
   displayControls->showScreen(sharedThis,
     [this](u8g2_t &u8g2) {
@@ -22,9 +37,9 @@ void MainMenu::showMenu() {
 
 }
 
-void MainMenu::buildMenu(u8g2_t &u8g2) {
+void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
   // create root page
-  muiItemId root_page = makePage("DCC Controller");  // provide a label for the page
+  muiItemId root_page = makePage("Roster");  // provide a label for the page
 
   // create "Page title" item and assign it to root page
   addMuippItem(
@@ -68,7 +83,7 @@ void MainMenu::buildMenu(u8g2_t &u8g2) {
 
   // this flag means that last item of a list will act as 'back' event, and will
   // try to retuen to the previous page/item
-  list->listopts.back_on_last = false;
+  list->listopts.back_on_last = true;
   // scroller here is the only active element on a page,
   // thre is no other items where we can move our cursor to
   // so let's set that an attempt to unselect this item will genreate "menuQuit"
@@ -85,24 +100,41 @@ void MainMenu::buildMenu(u8g2_t &u8g2) {
   pageAutoSelect(root_page, scroll_list_id);
 
   // addMuippItem(new MuiItem_U8g2_BackButton(u8g2, nextIndex(), "Back",
-  // MAIN_MENU_FONT1), root_page);
+  //   MAIN_MENU_FONT1), root_page);
+
 
   // start our menu from root page
   menuStart(root_page);
 
 }
 
-void MainMenu::clearAction() {
-  selectedItem.value = miv_None;
+void ShowRosterMenu::clearAction() {
+  // selectedItem.value = miv_None;
 }
 
-bool MainMenu::doAction(){
+bool ShowRosterMenu::doAction(){
   switch(selectedItem.value){
-    case miv_ConnectToDCC:
-      connectionMenu = DCCConnectionMenu::create(displayControls);
-      connectionMenu->showMenu();
+    case 0xff:
+      // back button pressed
+      displayControls->endScreen();
+      return false;
+      break;
+    default:
+      // selectedItem.value is a loco address
+      printf("Selected loco: %d\n", selectedItem.value);
+      // WifiControl::getInstance()->dccProtocol()->setLocoAddress(selectedItem.value);
       break;
   }
   return true;
+  //   case miv_RefreshRoster:
+  //     WifiControl::getInstance()->dccProtocol()->refreshRoster();
+  //     break;
+  //     case miv_TrackOn:
+  //     WifiControl::getInstance()->dccProtocol()->powerOn();
+  //     break;
+  //     case miv_TrackOff:
+  //     WifiControl::getInstance()->dccProtocol()->powerOff();
+  //     break;
+  // }
 }
 

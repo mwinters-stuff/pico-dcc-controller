@@ -12,7 +12,7 @@
 #define MAIN_MENU_FONT u8g2_font_bauhaus2015_tr
 #define SMALL_TEXT_FONT u8g2_font_glasstown_nbp_t_all
 
-DisplayControls::DisplayControls() {
+DisplayControls::DisplayControls() :previousMenus(){
   u8g2_Setup_ssd1306_i2c_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_hw_i2c,
                                          u8x8_gpio_and_delay_hw_i2c);
 };
@@ -89,16 +89,31 @@ void DisplayControls::loop() {
     }
 
     if(currentMenu){
-      currentMenu->doAction();
+      if(!currentMenu->doAction()){
+        // menu has quit, so let's destroy it
+        currentMenu->clearAction();
+        currentMenu.reset();
+        redrawDisplay = true;
+      }
     }
   }
 
-    // Check if 1 minute has passed since the last activity
-    if (!is_display_sleeping && absolute_time_diff_us(last_activity_time, get_absolute_time()) > getDisplaySleepMicros()) {
-      printf("Putting the display to sleep\n");
-      is_display_sleeping = true;
-      SetPowerSave(true);
+  if(endCurrentScreen){
+    endCurrentScreen = false;
+    if(auto previousMenu = previousMenus.back()){
+      previousMenus.pop_back();
+      currentMenu = previousMenu;
+      currentMenu->showMenu();
     }
+    redrawDisplay = true;
+  }
+
+  // Check if 1 minute has passed since the last activity
+  if (!is_display_sleeping && absolute_time_diff_us(last_activity_time, get_absolute_time()) > getDisplaySleepMicros()) {
+    printf("Putting the display to sleep\n");
+    is_display_sleeping = true;
+    SetPowerSave(true);
+  }
   
 }
 
@@ -137,9 +152,14 @@ void DisplayControls::keyAction(uint8_t action) {
   
 
 void DisplayControls::showScreen(std::shared_ptr<MuiMenu> menu, BuildPassEntryFunction buildPassEntryFunction) {
+  previousMenus.push_back(currentMenu);
   currentMenu = menu;
   buildPassEntryFunction(u8g2);
   redrawDisplay = true;
+}
+
+void DisplayControls::endScreen() {
+  endCurrentScreen = true;
 }
 
 void DisplayControls::showScreen2(BuildPassEntryFunction buildPassEntryFunction) {

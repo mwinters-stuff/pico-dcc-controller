@@ -164,5 +164,6 @@ bool WifiControl::connectToServer(const char *server_ip, uint16_t port) {
 void WifiControl::loop(){
   if(dccExProtocol){
     dccExProtocol->check();
+    dccExProtocol->getLists(true, true, true, false);
   }
 }

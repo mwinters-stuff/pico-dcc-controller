@@ -25,7 +25,7 @@ int main() {
   
   launchCore1();
 
-  auto mainMenu = std::make_shared<MainMenu>(displayControls);
+  auto mainMenu = MainMenu::create(displayControls);
   mainMenu->showMenu();
   
   while (true) {

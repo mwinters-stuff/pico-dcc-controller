@@ -27,10 +27,18 @@ class WifiScan : public MuiMenu {
   void scanWifi();
   static int scanResult(void *env, const cyw43_ev_scan_result_t *result);
 
-  void buildMenu(u8g2_t &u8g2);
+  void buildMenu(u8g2_t &u8g2) override;
   void buildPassEntry(u8g2_t &u8g2);
-  void clearAction();
-  void doAction();
+  void clearAction() override;
+  bool doAction() override;
+  void showMenu() override;
+
+  static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls) {
+    auto ptr = std::make_shared<WifiScan>(displayControls);
+    ptr->sharedThis = ptr;
+    return ptr;
+  }
+
 };
 
 #endif

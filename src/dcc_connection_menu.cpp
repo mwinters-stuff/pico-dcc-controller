@@ -112,7 +112,7 @@ void DCCConnectionMenu::clearAction() {
   selectedIndex = -1;
 }
 
-void DCCConnectionMenu::doAction(){
+bool DCCConnectionMenu::doAction(){
   if(selectedIndex != -1){
     auto fullStr = addresses.at(selectedIndex);
     auto delimiterPos = fullStr.find('|');
@@ -127,13 +127,15 @@ void DCCConnectionMenu::doAction(){
     auto wifiControl = WifiControl::getInstance();
     if(wifiControl->connectToServer(address.c_str(), DCCEX_PORT)){
       printf("Connected to server\n");
-      testMenu = std::make_shared<TestMenu>(displayControls);
+      // testMenu = std::dynamic_pointer_cast<TestMenu>(TestMenu::create(displayControls));
+      testMenu = TestMenu::create(displayControls);
       testMenu->showMenu();
     }else{
       displayControls->showDCCFailedConnection("failed");
       printf("Failed to connect to server\n");
     }
   }
+  return true;
 
 }
 

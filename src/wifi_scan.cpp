@@ -63,13 +63,15 @@ void WifiScan::scanWifi() {
       scan_in_progress = false;
     }
   }
+}
 
+void WifiScan::showMenu() {
   displayControls->showScreen(sharedThis,
     [this](u8g2_t &u8g2) {
       buildMenu(u8g2);
     });
-
 }
+
 
 void WifiScan::buildMenu(u8g2_t &u8g2) {
   // create root page
@@ -190,6 +192,6 @@ void WifiScan::buildPassEntry(u8g2_t &u8g2) {
 
 void WifiScan::clearAction() {}
 
-void WifiScan::doAction() {
-
+bool WifiScan::doAction() {
+  return true;
 }
