@@ -21,6 +21,7 @@ class MuiMenu : public MuiPlusPlus {
   virtual void showMenu() = 0;
   virtual void clearAction() = 0;
   virtual bool doAction() = 0;
+  virtual bool doLongPressAction() { return false; };
   
    // Static factory method renamed to create
    static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls);

@@ -1,4 +1,4 @@
-#include "show_roster.h"
+#include "show_turnouts.h"
 
 #include <stdio.h>
 
@@ -9,18 +9,18 @@
 #include "pico/stdlib.h"
 #include "wifi_control.h"
 
-ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls), menu(){
-  auto loco = DCCExController::Loco::getFirst();
-  while (loco != nullptr) {
+ShowTurnoutsMenu::ShowTurnoutsMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls), menu(){
+  auto turnout = DCCExController::Turnout::getFirst();
+  while (turnout != nullptr) {
     menuItem item;
-    item.value = loco->getAddress();
-    item.label = loco->getName();
+    item.value = turnout->getId();
+    item.label = turnout->getName();
     menu.push_back(item);
-    loco = loco->getNext();
+    turnout = turnout->getNext();
   }
-  printf("Roster size: %d\n", menu.size());
+  printf("Turnout size: %d\n", menu.size());
   for (const auto& item : menu) {
-    printf("Roster item: %d, %s\n", item.value, item.label);
+    printf("Turnout item: %d, %s\n", item.value, item.label);
   }
   menuItem item;
   item.value = 0xff;
@@ -28,7 +28,7 @@ ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls)
   menu.push_back(item);
 }
 
-void ShowRosterMenu::showMenu() {
+void ShowTurnoutsMenu::showMenu() {
 
   displayControls->showScreen(sharedThis,
     [this](u8g2_t &u8g2) {
@@ -37,9 +37,9 @@ void ShowRosterMenu::showMenu() {
 
 }
 
-void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
+void ShowTurnoutsMenu::buildMenu(u8g2_t &u8g2) {
   // create root page
-  muiItemId root_page = makePage("Roster");  // provide a label for the page
+  muiItemId root_page = makePage("Turnouts");  // provide a label for the page
 
   // create "Page title" item and assign it to root page
   addMuippItem(
@@ -108,11 +108,11 @@ void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-void ShowRosterMenu::clearAction() {
+void ShowTurnoutsMenu::clearAction() {
   // selectedItem.value = miv_None;
 }
 
-bool ShowRosterMenu::doAction(){
+bool ShowTurnoutsMenu::doAction(){
   switch(selectedItem.value){
     case 0xff:
       // back button pressed
@@ -120,15 +120,15 @@ bool ShowRosterMenu::doAction(){
       return false;
       break;
     default:
-      // selectedItem.value is a loco address
-      printf("Selected loco: %d\n", selectedItem.value);
-      // WifiControl::getInstance()->dccProtocol()->setLocoAddress(selectedItem.value);
+      // selectedItem.value is a turnout address
+      printf("Selected turnout: %d\n", selectedItem.value);
+      WifiControl::getInstance()->dccProtocol()->toggleTurnout(selectedItem.value);
       break;
   }
   return true;
 }
 
-bool ShowRosterMenu::doLongPressAction(){
+bool ShowTurnoutsMenu::doLongPressAction(){
   displayControls->endScreen();
   return false;
 }

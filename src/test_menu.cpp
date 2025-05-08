@@ -8,6 +8,8 @@
 #include "display_controls.h"
 #include "pico/stdlib.h"
 #include "wifi_control.h"
+#include "show_roster.h"
+#include "show_turnouts.h"
 
 TestMenu::TestMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls){
 
@@ -113,7 +115,8 @@ bool TestMenu::doAction(){
       subMenu->showMenu();
       break;
       case miv_ShowTurnouts:
-      // displayControls->showTurnouts();
+      subMenu = ShowTurnoutsMenu::create(displayControls);
+      subMenu->showMenu();
       break;
   }
   return true;

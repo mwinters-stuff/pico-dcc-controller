@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "mui_menu.h"
-#include "show_roster.h"
 
 #include <memory>
 #include <string>

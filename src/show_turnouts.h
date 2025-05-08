@@ -1,5 +1,5 @@
-#ifndef _SHOW_ROSTER_MENU_H
-#define _SHOW_ROSTER_MENU_H
+#ifndef _SHOW_TURNOUTS_MENU_H
+#define _SHOW_TURNOUTS_MENU_H
 
 #include <u8g2.h>
 
@@ -13,7 +13,7 @@
 
 class DisplayControls;
 
-class ShowRosterMenu : public MuiMenu {
+class ShowTurnoutsMenu : public MuiMenu {
   private:
   struct menuItem{
     uint8_t value;
@@ -25,8 +25,8 @@ class ShowRosterMenu : public MuiMenu {
 
 
  public:
-  ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls);
-  virtual ~ShowRosterMenu() {};
+  ShowTurnoutsMenu(std::shared_ptr<DisplayControls> displayControls);
+  virtual ~ShowTurnoutsMenu() {};
   
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
@@ -35,7 +35,7 @@ class ShowRosterMenu : public MuiMenu {
   bool doLongPressAction() override;
 
   static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls) {
-    auto ptr = std::make_shared<ShowRosterMenu>(displayControls);
+    auto ptr = std::make_shared<ShowTurnoutsMenu>(displayControls);
     ptr->sharedThis = ptr;
     return ptr;
   }

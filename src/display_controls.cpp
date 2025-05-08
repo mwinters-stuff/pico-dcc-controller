@@ -72,12 +72,28 @@ void DisplayControls::loop() {
           break;
         case ROTARY_PRESS:
           printf("Rotary press\n");
+          if(currentMenu){
+            if(!currentMenu->doAction()){
+              // menu has quit, so let's destroy it
+              currentMenu->clearAction();
+              currentMenu.reset();
+              redrawDisplay = true;
+            }
+          }
           break;
         case ROTARY_DOUBLEPRESS:
           printf("Rotary double press\n");
           break;
         case ROTARY_LONGPRESS:
           printf("Rotary long press\n");
+          if(currentMenu){
+            if(!currentMenu->doLongPressAction()){
+              // menu has quit, so let's destroy it
+              currentMenu->clearAction();
+              currentMenu.reset();
+              redrawDisplay = true;
+            }
+          }
           break;
         default:
           printf("Unknown rotary event %d\n", input_value.value);
@@ -88,14 +104,6 @@ void DisplayControls::loop() {
       keyAction(input_value.value);
     }
 
-    if(currentMenu){
-      if(!currentMenu->doAction()){
-        // menu has quit, so let's destroy it
-        currentMenu->clearAction();
-        currentMenu.reset();
-        redrawDisplay = true;
-      }
-    }
   }
 
   if(endCurrentScreen){
@@ -135,12 +143,12 @@ void DisplayControls::rotateAction(uint8_t action) {
       break;
     case ROTARY_PRESS:
       auto e = currentMenu->muiEvent(mui_event(mui_event_t::enter));
-      // check if menu has quit in responce to button event,
-      // if quit, then I'll destroy menu object
-      if (e.eid == mui_event_t::quitMenu) {
-        // _menu.release();
-        printf("menu object destroyed\n");
-      }
+      // // check if menu has quit in responce to button event,
+      // // if quit, then I'll destroy menu object
+      // if (e.eid == mui_event_t::quitMenu) {
+      //   // _menu.release();
+      //   printf("menu object destroyed\n");
+      // }
       break;
   }
   redrawDisplay = true;
