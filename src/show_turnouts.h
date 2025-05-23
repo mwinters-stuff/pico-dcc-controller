@@ -13,7 +13,7 @@
 
 class DisplayControls;
 
-class ShowTurnoutsMenu : public MuiMenu {
+class ShowTurnoutsMenu : public MuiMenu, public std::enable_shared_from_this<ShowTurnoutsMenu> {
   private:
   struct menuItem{
     uint8_t value;
@@ -27,18 +27,18 @@ class ShowTurnoutsMenu : public MuiMenu {
  public:
   ShowTurnoutsMenu(std::shared_ptr<DisplayControls> displayControls);
   virtual ~ShowTurnoutsMenu() {};
+
+      MenuList getMenu() override { return MenuList::SHOW_TURNOUTS; };
+    MenuList backMenu() override { return MenuList::TEST_MENU; };
+
   
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
-  void clearAction() override;
   bool doAction() override;
   bool doLongPressAction() override;
+  void clearAction() override;
+  std::string getName() override  { return "ShowTurnouts"; };
 
-  static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls) {
-    auto ptr = std::make_shared<ShowTurnoutsMenu>(displayControls);
-    ptr->sharedThis = ptr;
-    return ptr;
-  }
 
 };
 

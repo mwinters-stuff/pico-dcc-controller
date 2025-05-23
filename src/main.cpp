@@ -16,16 +16,24 @@ int main() {
 
 
   auto displayControls = std::make_shared<DisplayControls>();
+  
   displayControls->begin();
-
+  
   auto wifiControl = WifiControl::initInstance(displayControls);
-  if(!wifiControl->connect()){
+  if(!wifiControl->init()){
+    displayControls->showWifiError();
+    printf("Wi-Fi init failed\n");
     return 1;
+  }
+
+
+  while(!wifiControl->connect()){
+    sleep_ms(1000);
   }
   
   launchCore1();
 
-  auto mainMenu = MainMenu::create(displayControls);
+  auto mainMenu = std::make_shared<MainMenu>(displayControls);
   mainMenu->showMenu();
   
   while (true) {

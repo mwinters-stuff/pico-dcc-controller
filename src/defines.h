@@ -1,6 +1,8 @@
 #ifndef _DEFINES_H
 #define _DEFINES_H
 
+// #define USE_MDNS 0
+
 #define I2C_PORT i2c0
 #define I2C_SDA 4
 #define I2C_SCL 5
@@ -64,5 +66,8 @@ struct input_type{
 
 #define PAGE_BACK_BTN_X_OFFSET  100
 #define PAGE_BACK_BTN_Y_OFFSET  55
+
+#define MAX_LOCO_SPEED 126
+#define MAX_LOCO_ADDRESS 127
 
 #endif

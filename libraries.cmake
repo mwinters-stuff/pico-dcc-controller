@@ -19,19 +19,37 @@ FetchContent_Declare(
   # GIT_REPOSITORY    git@github.com:olikraus/u8g2.git
   GIT_TAG           master
   GIT_SHALLOW       1
-  OVERRIDE_FIND_PACKAGE
-
 )
 
-# Override the default build configuration
-FetchContent_GetProperties(u8g2)
-if(NOT u8g2_POPULATED)
-  # Copy your custom CMakeLists.txt to a temporary location
-  configure_file(${CMAKE_CURRENT_LIST_DIR}/libs/u8g2/CMakeLists.txt
-                 ${u8g2_SOURCE_DIR}/CMakeLists.txt
-                 COPYONLY)
-                 
-  FetchContent_MakeAvailable(u8g2)
+FetchContent_MakeAvailable(u8g2)
+
+if(TARGET u8g2)
+    set(U8G2_PATCHED_SRCS
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_d_ssd1306_128x64_noname.c
+        ${u8g2_SOURCE_DIR}/csrc/mui.c
+        ${u8g2_SOURCE_DIR}/csrc/mui_u8g2.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_hvline.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_8x8.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_setup.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_setup.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_display.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_box.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_byte.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_intersection.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_cleardisplay.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_font.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_cad.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_ll_hvline.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_circle.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_buffer.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_kerning.c
+        ${u8g2_SOURCE_DIR}/csrc/u8g2_button.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_gpio.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_capture.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_u16toa.c
+        ${u8g2_SOURCE_DIR}/csrc/u8x8_u8toa.c
+    )
+    set_target_properties(u8g2 PROPERTIES SOURCES "${U8G2_PATCHED_SRCS}")
 endif()
 
 FetchContent_Declare(

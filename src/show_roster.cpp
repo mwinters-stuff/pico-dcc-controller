@@ -8,6 +8,7 @@
 #include "display_controls.h"
 #include "pico/stdlib.h"
 #include "wifi_control.h"
+#include "cab_control.h"
 
 ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls), menu(){
   auto loco = DCCExController::Loco::getFirst();
@@ -15,6 +16,7 @@ ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls)
     menuItem item;
     item.value = loco->getAddress();
     item.label = loco->getName();
+    item.loco = loco;
     menu.push_back(item);
     loco = loco->getNext();
   }
@@ -30,7 +32,7 @@ ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls)
 
 void ShowRosterMenu::showMenu() {
 
-  displayControls->showScreen(sharedThis,
+  displayControls->showScreen(shared_from_this(),
     [this](u8g2_t &u8g2) {
       buildMenu(u8g2);
     });
@@ -68,8 +70,8 @@ void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
       MAIN_MENU_ROWS,  // offset for each line of text and total number of lines
                        // in menu to dispaly
       MAIN_MENU_X_OFFSET, MAIN_MENU_Y_OFFSET,  // x,y cursor
-      MAIN_MENU_FONT3,
-      MAIN_MENU_FONT3  // font to use printin highlighted / non-highlighted item
+      MAIN_MENU_FONT1,
+      MAIN_MENU_FONT1  // font to use printin highlighted / non-highlighted item
   );
 
   // let's set specific options for this meuItem
@@ -108,10 +110,6 @@ void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-void ShowRosterMenu::clearAction() {
-  // selectedItem.value = miv_None;
-}
-
 bool ShowRosterMenu::doAction(){
   switch(selectedItem.value){
     case 0xff:
@@ -122,10 +120,17 @@ bool ShowRosterMenu::doAction(){
     default:
       // selectedItem.value is a loco address
       printf("Selected loco: %d\n", selectedItem.value);
-      // WifiControl::getInstance()->dccProtocol()->setLocoAddress(selectedItem.value);
+      auto menu = std::make_shared<CabControl>(displayControls);
+      
+      menu->setLoco(selectedItem.loco);
+      menu->showMenu();
       break;
   }
   return true;
+}
+
+void ShowRosterMenu::clearAction(){
+  selectedItem.value = -1;
 }
 
 bool ShowRosterMenu::doLongPressAction(){

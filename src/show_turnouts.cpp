@@ -30,7 +30,7 @@ ShowTurnoutsMenu::ShowTurnoutsMenu(std::shared_ptr<DisplayControls> displayContr
 
 void ShowTurnoutsMenu::showMenu() {
 
-  displayControls->showScreen(sharedThis,
+  displayControls->showScreen(shared_from_this(),
     [this](u8g2_t &u8g2) {
       buildMenu(u8g2);
     });
@@ -108,10 +108,6 @@ void ShowTurnoutsMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-void ShowTurnoutsMenu::clearAction() {
-  // selectedItem.value = miv_None;
-}
-
 bool ShowTurnoutsMenu::doAction(){
   switch(selectedItem.value){
     case 0xff:
@@ -126,6 +122,10 @@ bool ShowTurnoutsMenu::doAction(){
       break;
   }
   return true;
+}
+
+void ShowTurnoutsMenu::clearAction(){
+  selectedItem.value = -1;
 }
 
 bool ShowTurnoutsMenu::doLongPressAction(){

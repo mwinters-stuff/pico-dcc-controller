@@ -33,6 +33,7 @@ class WifiControl{
       return instance;
     }
 
+    bool init();
     bool connect();
     
     void failError(err_t err);

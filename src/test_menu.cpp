@@ -18,7 +18,7 @@ TestMenu::TestMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(di
 void TestMenu::showMenu() {
   subMenu = nullptr;
 
-  displayControls->showScreen(sharedThis,
+  displayControls->showScreen(shared_from_this(),
     [this](u8g2_t &u8g2) {
       buildMenu(u8g2);
     });
@@ -95,10 +95,6 @@ void TestMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-void TestMenu::clearAction() {
-  selectedItem.value = miv_None;
-}
-
 bool TestMenu::doAction(){
   switch(selectedItem.value){
     case miv_RefreshRoster:
@@ -111,11 +107,11 @@ bool TestMenu::doAction(){
       WifiControl::getInstance()->dccProtocol()->powerOff();
       break;
       case miv_ShowRoster:
-      subMenu = ShowRosterMenu::create(displayControls);
+      subMenu = std::make_shared<ShowRosterMenu>(displayControls);
       subMenu->showMenu();
       break;
       case miv_ShowTurnouts:
-      subMenu = ShowTurnoutsMenu::create(displayControls);
+      subMenu = std::make_shared<ShowTurnoutsMenu>(displayControls);
       subMenu->showMenu();
       break;
   }

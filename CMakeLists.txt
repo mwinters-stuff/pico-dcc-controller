@@ -50,6 +50,15 @@ file(GLOB_RECURSE SRC
     libs/fonts/*.c
 )
 
+set(PICO_CYW43_SUPPORTED 1)
+add_compile_definitions(
+    LWIP_DNS_SUPPORT_MDNS_QUERIES=1
+    LWIP_MDNS_RESPONDER=1
+    LWIP_MDNS_SEARCH=1
+    LWIP_IGMP=1
+    LWIP_NUM_NETIF_CLIENT_DATA=4
+)
+
 add_executable(pico-dcc-controller ${SRC})
 
 pico_set_program_name(pico-dcc-controller "pico-dcc-controller")
@@ -72,6 +81,10 @@ target_include_directories(pico-dcc-controller PRIVATE
         libs/u8g2pico
 )
 
+target_include_directories(pico-dcc-controller PUBLIC
+    ${u8g2_SOURCE_DIR}/csrc
+)
+
 # Add any user requested libraries
 target_link_libraries(pico-dcc-controller 
         hardware_i2c
@@ -83,10 +96,12 @@ target_link_libraries(pico-dcc-controller
         # hardware_clocks
         pico_multicore
         pico_cyw43_arch_lwip_poll
+       
         Versatile_RotaryEncoder
         u8g2
         MuiPlusPlus
         DCCEXProtocol
+        pico_lwip_mdns
         )
 
 pico_add_extra_outputs(pico-dcc-controller)

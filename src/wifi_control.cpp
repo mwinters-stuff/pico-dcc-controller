@@ -6,6 +6,7 @@
 #include "../config.h"
 #include "display_controls.h"
 #include "pico/cyw43_arch.h"
+#include "lwip/apps/mdns.h"
 #include "wifi_connection.h"
 #include <DCCEXProtocol.h>
 
@@ -17,14 +18,17 @@ WifiControl::WifiControl(std::shared_ptr<DisplayControls> displayControls)
     : displayControls(displayControls) {
 }
 
-bool WifiControl::connect() {
+bool WifiControl::init() {
   // Initialise the Wi-Fi chip
-  if (cyw43_arch_init()) {
+  if (cyw43_arch_init() != 0) {
     displayControls->showWifiError();
     printf("Wi-Fi init failed\n");
     return false;
   }
+  return true;
+}
 
+bool WifiControl::connect() {
   displayControls->showWifiConnecting();
 
   // Enable wifi station
@@ -43,6 +47,10 @@ bool WifiControl::connect() {
     ip_address = (uint8_t *)&(cyw43_state.netif[0].ip_addr.addr);
     printf("IP address %d.%d.%d.%d\n", ip_address[0], ip_address[1],
            ip_address[2], ip_address[3]);
+
+    // Start mDNS responder (required for queries)
+    mdns_resp_init();
+
     return true;
   }
 }
@@ -116,9 +124,11 @@ bool WifiControl::connectToServer(const char *server_ip, uint16_t port) {
         return false;
     }
 
-    // Poll for connection status
+    // Poll for connection status with a 20 second timeout
     printf("Connecting to server...\n");
     isConnected = false;
+    const uint32_t timeout_ms = 20000;
+    uint32_t start_time = to_ms_since_boot(get_absolute_time());
     while (!isConnected) {
         cyw43_arch_poll();
 
@@ -134,21 +144,20 @@ bool WifiControl::connectToServer(const char *server_ip, uint16_t port) {
             dccExProtocol->setDelegate(&dccDelegate);
             dccExProtocol->connect(stream);
             dccExProtocol->enableHeartbeat();
-            // dccExProtocol->check();
-            // int m = dccExProtocol->getMajorVersion();
-            // int n = dccExProtocol->getMinorVersion();
-            // int p = dccExProtocol->getPatchVersion(); 
-            // char x[20];
-            // sprintf(x, "%d.%d.%d", m, n, p);
-            // displayControls->showBasicTwoLine("Server Version", x);
-            // sleep_ms(2000);
-            // dccExProtocol->check();
-    
             isConnected = true;
         } else if (pcb->state == CLOSED || pcb->state == TIME_WAIT ||
                    pcb->state == FIN_WAIT_1 || pcb->state == FIN_WAIT_2) {
             printf("Connection failed or closed\n");
             displayControls->showDCCFailedConnection("failed");
+            tcp_close(pcb);
+            return false;
+        }
+
+        // Timeout check
+        uint32_t now = to_ms_since_boot(get_absolute_time());
+        if (now - start_time > timeout_ms) {
+            printf("Connection timed out after 20 seconds\n");
+            displayControls->showDCCFailedConnection("timeout");
             tcp_close(pcb);
             return false;
         }

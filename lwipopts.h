@@ -86,4 +86,15 @@
 #define SLIP_DEBUG                  LWIP_DBG_OFF
 #define DHCP_DEBUG                  LWIP_DBG_OFF
 
+
+#define LWIP_MDNS_RESPONDER 1
+#define LWIP_DNS_SUPPORT_MDNS_QUERIES 1
+#define LWIP_MDNS_SEARCH                1
+#define LWIP_IGMP 1
+#define LWIP_NUM_NETIF_CLIENT_DATA 4
+#define MEMP_NUM_SYS_TIMEOUT 16  // or higher, e.g., 32 or 64
+
+// #define MDNS_DEBUG LWIP_DBG_ON
+// #define DNS_DEBUG LWIP_DBG_ON
+
 #endif /* __LWIPOPTS_H__ */

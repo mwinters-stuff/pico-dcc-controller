@@ -14,7 +14,7 @@
 
 class DisplayControls;
 
-class MainMenu : public MuiMenu {
+class MainMenu : public MuiMenu, public std::enable_shared_from_this<MainMenu> {
   private:
   enum MENU_ITEM_VALUE{
     miv_None = -1,
@@ -35,16 +35,16 @@ class MainMenu : public MuiMenu {
   MainMenu(std::shared_ptr<DisplayControls> displayControls);
   virtual ~MainMenu() {};
   
+  MenuList getMenu() override { return MenuList::MAIN_MENU; };
+  MenuList backMenu() override { return MenuList::NONE; };
+
+
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
-  void clearAction() override;
   bool doAction() override;
+  void clearAction() override;
 
-  static std::shared_ptr<MuiMenu> create(std::shared_ptr<DisplayControls> displayControls) {
-    auto ptr = std::make_shared<MainMenu>(displayControls);
-    ptr->sharedThis = ptr;
-    return ptr;
-  }
+
 
 };
 

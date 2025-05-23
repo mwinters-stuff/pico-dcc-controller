@@ -66,7 +66,7 @@ void WifiScan::scanWifi() {
 }
 
 void WifiScan::showMenu() {
-  displayControls->showScreen(sharedThis,
+  displayControls->showScreen(shared_from_this(),
     [this](u8g2_t &u8g2) {
       buildMenu(u8g2);
     });
@@ -108,7 +108,7 @@ void WifiScan::buildMenu(u8g2_t &u8g2) {
         if (index < scanResults.size()) {
           printf("Selected: %s\n", ssidList.at(index).c_str());
           selectedIndex = index;
-          this->displayControls->showScreen(sharedThis,
+          this->displayControls->showScreen(shared_from_this(),
               [this](u8g2_t &u8g2) {
                 this->buildPassEntry(u8g2);
               });
@@ -190,7 +190,6 @@ void WifiScan::buildPassEntry(u8g2_t &u8g2) {
   this->displayControls = displayControls;
 }
 
-void WifiScan::clearAction() {}
 
 bool WifiScan::doAction() {
   return true;

@@ -15,7 +15,7 @@ MainMenu::MainMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(di
 
 void MainMenu::showMenu() {
 
-  displayControls->showScreen(sharedThis,
+  displayControls->showScreen(shared_from_this(),
     [this](u8g2_t &u8g2) {
       buildMenu(u8g2);
     });
@@ -92,17 +92,16 @@ void MainMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-void MainMenu::clearAction() {
-  selectedItem.value = miv_None;
-}
-
 bool MainMenu::doAction(){
   switch(selectedItem.value){
     case miv_ConnectToDCC:
-      connectionMenu = DCCConnectionMenu::create(displayControls);
+      connectionMenu = std::make_shared<DCCConnectionMenu>(displayControls);
       connectionMenu->showMenu();
       break;
   }
   return true;
 }
 
+void MainMenu::clearAction(){
+  selectedItem.value = miv_None;
+}

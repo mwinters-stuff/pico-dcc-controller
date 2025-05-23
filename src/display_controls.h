@@ -17,7 +17,7 @@
    class object
 
 */
-class DisplayControls {
+class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   private:
   u8g2_t u8g2;
   
@@ -28,7 +28,7 @@ class DisplayControls {
 
   // a placeholder for our menu object, initially empty
   std::shared_ptr<MuiMenu> currentMenu;
-  std::vector<std::shared_ptr<MuiMenu> > previousMenus;
+  // std::vector<std::shared_ptr<MuiMenu> > previousMenus;
   bool endCurrentScreen{false};
 
   absolute_time_t last_activity_time = get_absolute_time();
@@ -79,7 +79,8 @@ class DisplayControls {
   void handleRotate(int8_t rotation);
   void handlePressRelease();
   void handleLongPressRelease();
-
+  void exitMenu();
+  // void listPreviousMenus();
 
  public:
   // constructor
