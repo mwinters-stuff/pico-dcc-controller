@@ -8,24 +8,20 @@
 #include <vector>
 
 #include "mui_menu.h"
-#include "test_menu.h"
+#include "dcc_menu.h"
+#include "dcc_connection_entry.h"
 
 class DisplayControls;
 
 class DCCConnectionMenu : public MuiMenu, public std::enable_shared_from_this<DCCConnectionMenu> {
  protected:
-  struct menuItem {
-    std::string name;
-    std::string address;
-    std::string port;
-  };
 
   size_t selectedIndex = -1;
-  std::vector<menuItem> addresses;
-  std::shared_ptr<MuiMenu> testMenu;
+  std::vector<DCCConnectionEntry> addresses;
+  std::shared_ptr<MuiMenu> dccMenu;
   std::string str = "";
   uint8_t mdns_request_id;
-  std::unique_ptr<menuItem> mdns_search_result;
+  std::unique_ptr<DCCConnectionEntry> mdns_search_result;
 
   void discoverMDNSWithrottle();
   void checkAddHost();

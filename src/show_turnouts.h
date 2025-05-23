@@ -29,7 +29,7 @@ class ShowTurnoutsMenu : public MuiMenu, public std::enable_shared_from_this<Sho
   virtual ~ShowTurnoutsMenu() {};
 
       MenuList getMenu() override { return MenuList::SHOW_TURNOUTS; };
-    MenuList backMenu() override { return MenuList::TEST_MENU; };
+    MenuList backMenu() override { return MenuList::DCC_MENU; };
 
   
   void showMenu() override;

@@ -15,7 +15,7 @@ enum class MenuList {
   DCC_CONNECTION,
   SHOW_ROSTER,
   SHOW_TURNOUTS,
-  TEST_MENU,
+  DCC_MENU,
   CAB_CONTROL,
 };
 

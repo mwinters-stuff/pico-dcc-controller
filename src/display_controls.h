@@ -8,7 +8,7 @@
 #include <pico/time.h>
 
 #include "mui_menu.h"
-
+#include "dcc_connection_entry.h"
 
 /*
     this class controls our buttons and
@@ -33,6 +33,7 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
 
   absolute_time_t last_activity_time = get_absolute_time();
   bool is_display_sleeping = false;
+  DCCConnectionEntry dccConnectionEntry;
 
 
   /**
@@ -79,7 +80,6 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   void handleRotate(int8_t rotation);
   void handlePressRelease();
   void handleLongPressRelease();
-  void exitMenu();
   // void listPreviousMenus();
 
  public:
@@ -98,6 +98,7 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
 
   // draw something on screen, either some sily stub text, or render menu
   void drawScreen();
+  void exitMenu();
 
   void rotateAction(uint8_t action);
   void keyAction(uint8_t action);
@@ -105,7 +106,6 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
 
   void showScreen(std::shared_ptr<MuiMenu> menu, BuildPassEntryFunction buildPassEntryFunction);
   void showScreen2(BuildPassEntryFunction buildPassEntryFunction);
-  void endScreen();
 
   void setRedraw();
   void SetPowerSave(bool on);
@@ -123,6 +123,14 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   void showWifiConnected();
   void showDCCFailedConnection(const char* name);
   void showConnectTo(const char* name);
+
+  void setDCCConnectionEntry(DCCConnectionEntry entry) {
+    dccConnectionEntry = entry;
+  }
+
+  DCCConnectionEntry getDCCConnectionEntry() {
+    return dccConnectionEntry;
+  }
 };
 
 #endif

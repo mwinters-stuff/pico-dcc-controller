@@ -106,7 +106,7 @@ void CabControl::change_direction(bool forward) {
 
 bool CabControl::doAction() {
   // if(muiEvent(mui_event(mui_event_t::enter)).eid == mui_event_t::quitMenu){
-  //   displayControls->endScreen();
+  //   displayControls->exitMenu();
   //   return false;
   // }
 
@@ -114,7 +114,7 @@ bool CabControl::doAction() {
 }
 
 bool CabControl::doLongPressAction() {
-  displayControls->endScreen();
+  displayControls->exitMenu();
   return false;
 }
 
@@ -126,7 +126,7 @@ bool CabControl::doMoveRightAction() { return true; }
 
 bool CabControl::doKeyAction(int8_t action) {
   if (action == 'B') {
-    displayControls->endScreen();
+    displayControls->exitMenu();
     return false;
   } else if (action >= '0' && action <= '9') {
     // Map '0'..'9' to speed 0..126 equally

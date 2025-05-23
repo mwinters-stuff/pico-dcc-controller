@@ -17,7 +17,7 @@
 #include "lwip/prot/dns.h"
 #include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
-#include "test_menu.h"
+#include "dcc_menu.h"
 #include "wifi_control.h"
 
 DCCConnectionMenu::DCCConnectionMenu(
@@ -122,7 +122,7 @@ void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
 bool DCCConnectionMenu::doAction() {
   if (selectedIndex != -1) {
     if (selectedIndex == addresses.size() - 1) {
-      displayControls->endScreen();
+      displayControls->exitMenu();
       return false;
     }
     auto item = addresses.at(selectedIndex);
@@ -135,13 +135,15 @@ bool DCCConnectionMenu::doAction() {
     int port = std::stoi(item.port); // Convert port string to integer
     if (wifiControl->connectToServer(item.address.c_str(), port)) {
       printf("Connected to server\n");
-      testMenu = std::make_shared<TestMenu>(displayControls);
-      testMenu->showMenu();
+      displayControls->setDCCConnectionEntry(item);
+      clearAction();
+      dccMenu = std::make_shared<DCCMenu>(displayControls);
+      dccMenu->showMenu();
     } else {
       displayControls->showDCCFailedConnection("failed");
       printf("Failed to connect to server\n");
       sleep_ms(2000);
-      displayControls->endScreen();
+      displayControls->exitMenu();
       return false;
     }
   }
@@ -149,6 +151,7 @@ bool DCCConnectionMenu::doAction() {
 }
 
 void DCCConnectionMenu::clearAction() {
+  printf("Clearing action\n");
   mdns_search_stop(mdns_request_id);
   mdns_resp_remove_netif(&cyw43_state.netif[0]);
   addresses.clear();
@@ -205,7 +208,7 @@ void DCCConnectionMenu::discoverMDNSWithrottle() {
       // SRV: varpart contains priority(2), weight(2), port(2), target (DNS
       // label)
       if(!self->mdns_search_result){
-        self->mdns_search_result = std::make_unique<menuItem>();
+        self->mdns_search_result = std::make_unique<DCCConnectionEntry>();
       }
       self->mdns_search_result->port = std::to_string(((uint8_t)varpart[4] << 8) | (uint8_t)varpart[5]);
       self->mdns_search_result->name = self->dns_label_to_string(varpart + 6, varlen - 6);

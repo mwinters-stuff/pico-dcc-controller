@@ -15,8 +15,9 @@ FetchContent_MakeAvailable(versatile_rotaryencoder)
 
 FetchContent_Declare(
   u8g2
-  GIT_REPOSITORY    https://github.com/olikraus/u8g2.git
+  # GIT_REPOSITORY    https://github.com/olikraus/u8g2.git
   # GIT_REPOSITORY    git@github.com:olikraus/u8g2.git
+  GIT_REPOSITORY    https://github.com/mwinters-stuff/u8g2
   GIT_TAG           master
   GIT_SHALLOW       1
 )

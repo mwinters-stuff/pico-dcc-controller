@@ -114,7 +114,7 @@ bool ShowRosterMenu::doAction(){
   switch(selectedItem.value){
     case 0xff:
       // back button pressed
-      displayControls->endScreen();
+      displayControls->exitMenu();
       return false;
       break;
     default:
@@ -134,7 +134,7 @@ void ShowRosterMenu::clearAction(){
 }
 
 bool ShowRosterMenu::doLongPressAction(){
-  displayControls->endScreen();
+  displayControls->exitMenu();
   return false;
 }
 

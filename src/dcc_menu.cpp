@@ -1,4 +1,4 @@
-#include "test_menu.h"
+#include "dcc_menu.h"
 
 #include <stdio.h>
 
@@ -11,11 +11,11 @@
 #include "show_roster.h"
 #include "show_turnouts.h"
 
-TestMenu::TestMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls){
+DCCMenu::DCCMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls){
 
 }
 
-void TestMenu::showMenu() {
+void DCCMenu::showMenu() {
   subMenu = nullptr;
 
   displayControls->showScreen(shared_from_this(),
@@ -25,9 +25,10 @@ void TestMenu::showMenu() {
 
 }
 
-void TestMenu::buildMenu(u8g2_t &u8g2) {
+void DCCMenu::buildMenu(u8g2_t &u8g2) {
   // create root page
-  muiItemId root_page = makePage("Test");  // provide a label for the page
+  pageLabel = "DCC " + displayControls->getDCCConnectionEntry().name;
+  muiItemId root_page = makePage(pageLabel.c_str());  // provide a label for the page
 
   // create "Page title" item and assign it to root page
   addMuippItem(
@@ -71,7 +72,7 @@ void TestMenu::buildMenu(u8g2_t &u8g2) {
 
   // this flag means that last item of a list will act as 'back' event, and will
   // try to retuen to the previous page/item
-  list->listopts.back_on_last = false;
+  list->listopts.back_on_last = true;
   // scroller here is the only active element on a page,
   // thre is no other items where we can move our cursor to
   // so let's set that an attempt to unselect this item will genreate "menuQuit"
@@ -95,7 +96,7 @@ void TestMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-bool TestMenu::doAction(){
+bool DCCMenu::doAction(){
   switch(selectedItem.value){
     case miv_RefreshRoster:
       WifiControl::getInstance()->dccProtocol()->refreshRoster();
@@ -114,6 +115,10 @@ bool TestMenu::doAction(){
       subMenu = std::make_shared<ShowTurnoutsMenu>(displayControls);
       subMenu->showMenu();
       break;
+      case miv_Back:
+        displayControls->exitMenu();
+        return false;
+   
   }
   return true;
 }

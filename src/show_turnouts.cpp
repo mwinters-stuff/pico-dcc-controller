@@ -112,7 +112,7 @@ bool ShowTurnoutsMenu::doAction(){
   switch(selectedItem.value){
     case 0xff:
       // back button pressed
-      displayControls->endScreen();
+      displayControls->exitMenu();
       return false;
       break;
     default:
@@ -129,7 +129,7 @@ void ShowTurnoutsMenu::clearAction(){
 }
 
 bool ShowTurnoutsMenu::doLongPressAction(){
-  displayControls->endScreen();
+  displayControls->exitMenu();
   return false;
 }
 

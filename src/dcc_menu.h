@@ -13,15 +13,16 @@
 
 class DisplayControls;
 
-class TestMenu : public MuiMenu, public std::enable_shared_from_this<TestMenu> {
+class DCCMenu : public MuiMenu, public std::enable_shared_from_this<DCCMenu> {
   private:
   enum MENU_ITEM_VALUE{
     miv_None = -1,
     miv_RefreshRoster = 0,
-    miv_TrackOn = 1,
-    miv_TrackOff = 2,
-    miv_ShowRoster = 3,
-    miv_ShowTurnouts = 4,
+    miv_ShowRoster = 1,
+    miv_ShowTurnouts = 2,
+    miv_TrackOn = 3,
+    miv_TrackOff = 4,
+    miv_Back = 5,
   };
   struct menuItem{
     MENU_ITEM_VALUE value;
@@ -31,19 +32,21 @@ class TestMenu : public MuiMenu, public std::enable_shared_from_this<TestMenu> {
  menuItem selectedItem;
   std::vector<menuItem> menu = {
     {miv_RefreshRoster, "Refresh Roster"},
-    {miv_TrackOn, "Power On"},
-    {miv_TrackOff, "Power Off"},
     {miv_ShowRoster, "Show Roster"},
     {miv_ShowTurnouts, "Show Turnouts"},
+    {miv_TrackOn, "Power On"},
+    {miv_TrackOff, "Power Off"},
+    {miv_Back, "Back"},
   };
 
   std::shared_ptr<MuiMenu> subMenu;
+  std::string pageLabel;
 
  public:
-  TestMenu(std::shared_ptr<DisplayControls> displayControls);
-  virtual ~TestMenu() {};
+  DCCMenu(std::shared_ptr<DisplayControls> displayControls);
+  virtual ~DCCMenu() {};
   
-      MenuList getMenu() override { return MenuList::TEST_MENU; };
+      MenuList getMenu() override { return MenuList::DCC_MENU; };
     MenuList backMenu() override { return MenuList::DCC_CONNECTION; };
 
 

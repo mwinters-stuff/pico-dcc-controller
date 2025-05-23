@@ -31,7 +31,7 @@ class ShowRosterMenu : public MuiMenu, public std::enable_shared_from_this<ShowR
 
 
       MenuList getMenu() override { return MenuList::SHOW_ROSTER; };
-    MenuList backMenu() override { return MenuList::TEST_MENU; };
+    MenuList backMenu() override { return MenuList::DCC_MENU; };
 
   void showMenu() override;
   void buildMenu(u8g2_t& u8g2) override;

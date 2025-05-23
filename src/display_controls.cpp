@@ -13,18 +13,12 @@
 #include "dcc_connection_menu.h"
 #include "show_roster.h"
 #include "show_turnouts.h"
-#include "test_menu.h"
+#include "dcc_menu.h"
 #include "cab_control.h"
 
 #define MAIN_MENU_FONT u8g2_font_bauhaus2015_tr
 #define SMALL_TEXT_FONT u8g2_font_glasstown_nbp_t_all
 
-// class MainMenu;
-class DCCConnectionMenu;
-class ShowRosterMenu;
-class ShowTurnoutsMenu;
-class TestMenu;
-class CabControl;
 
 // Ensure DisplayControls inherits from enable_shared_from_this in the header file
 
@@ -157,8 +151,8 @@ void DisplayControls::loop() {
         case MenuList::SHOW_TURNOUTS:
           currentMenu = std::make_shared<ShowTurnoutsMenu>(shared_from_this());
           break;
-        case MenuList::TEST_MENU:
-          currentMenu = std::make_shared<TestMenu>(shared_from_this());
+        case MenuList::DCC_MENU:
+          currentMenu = std::make_shared<DCCMenu>(shared_from_this());
           break;
         case MenuList::CAB_CONTROL:
           currentMenu = std::make_shared<CabControl>(shared_from_this());
@@ -173,20 +167,7 @@ void DisplayControls::loop() {
       } else {
         printf("EndCurrentScreen Menu not found\n");
       }
-      
-      // listPreviousMenus();
-    //   printf("Returning to main menu\n");
-    // if (auto previousMenu = previousMenus.back()) {
-    //   printf("EndCurrentScreen Exiting menu: %s\n", currentMenu->getName().c_str());
-    //   previousMenus.pop_back();
 
-    //   listPreviousMenus();
-    //   currentMenu.reset();
-    //   currentMenu = previousMenu;
-
-    //   listPreviousMenus();
-    //   printf("Returning to previous menu: %s\n", currentMenu->getName().c_str());
-    //   currentMenu->showMenu();
     }
     redrawDisplay = true;
   }
@@ -228,36 +209,12 @@ void DisplayControls::showScreen(
     std::shared_ptr<MuiMenu> menu,
     BuildPassEntryFunction buildPassEntryFunction) {
   printf("showScreen: %s\n", menu->getName().c_str());
-  // listPreviousMenus();
-  // if(!previousMenus.empty() && previousMenus.back() == currentMenu) {
-  //   printf("showScreen: %s already in previous menus\n", menu->getName().c_str());
-  // }else if (currentMenu) {
-  //   previousMenus.push_back(currentMenu);
-  //   printf("addScreen: %s\n", currentMenu->getName().c_str());
-  // }else{
-  //   printf("showScreen: currentMenu is nullptr\n");
-  // }
+
   currentMenu = menu;
   // printf("showScreen: %s\n", currentMenu->getName().c_str());
   buildPassEntryFunction(u8g2);
   redrawDisplay = true;
 }
-
-// void DisplayControls::listPreviousMenus() {
-//   printf("Previous Menus:\n");
-//   for (size_t i = 0; i < previousMenus.size(); ++i) {
-//     auto menuPtr = previousMenus[i];
-//     if (menuPtr) {
-//       // If MuiMenu has a getName() method, you can print the name:
-//       printf("  [%zu] %p - %s\n", i, menuPtr.get(), menuPtr->getName().c_str());
-//       // printf("  [%zu] %p\n", i, menuPtr.get());
-//     } else {
-//       printf("  [%zu] nullptr\n", i);
-//     }
-//   }
-// }
-
-void DisplayControls::endScreen() { endCurrentScreen = true; }
 
 void DisplayControls::showScreen2(
     BuildPassEntryFunction buildPassEntryFunction) {
