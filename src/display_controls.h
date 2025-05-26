@@ -102,6 +102,8 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
 
   void rotateAction(uint8_t action);
   void keyAction(uint8_t action);
+  void potAction(uint16_t value);
+  void buttonAction(uint8_t action, uint8_t value);
 
 
   void showScreen(std::shared_ptr<MuiMenu> menu, BuildPassEntryFunction buildPassEntryFunction);

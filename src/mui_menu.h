@@ -39,6 +39,9 @@ class MuiMenu : public MuiPlusPlus {
   virtual bool doMoveRightAction() { return true; };
   virtual bool doKeyAction(int8_t action) { return true; };
   virtual std::string getName() { return "MuiMenu"; };
+  virtual void doPotAction(uint16_t value) {};
+  virtual void doButtonAction(uint8_t action, uint8_t value) {};
+  virtual void loop() {};
 
 };
 

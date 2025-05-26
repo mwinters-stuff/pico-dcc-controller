@@ -25,6 +25,13 @@
 
 #define INPUT_ROTARY 1
 #define INPUT_KEYPAD 2
+#define INPUT_POT 3
+#define INPUT_BUTTON_REVERSE 4
+
+
+
+#define POT_PIN 26
+#define BUTTON_REVERSE_PIN 16
 
 struct input_type{
   uint8_t input_source;

@@ -90,6 +90,7 @@ target_link_libraries(pico-dcc-controller
         hardware_i2c
         # hardware_dma
         hardware_pio
+        hardware_adc
         # hardware_interp
         hardware_timer
         # hardware_watchdog

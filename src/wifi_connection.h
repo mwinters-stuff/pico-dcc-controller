@@ -50,15 +50,15 @@ public:
         uint8_t byte = *static_cast<uint8_t*>(recv_buffer->payload);
         pbuf_remove_header(recv_buffer, 1);
         if (recv_buffer->len == 0) {
-            printf("Freeing buffer %d %d %d\n", recv_buffer->len, recv_buffer->tot_len, recv_buffer->ref);
+            // printf("Freeing buffer %d %d %d\n", recv_buffer->len, recv_buffer->tot_len, recv_buffer->ref);
              fflush(stdout);
             struct pbuf *next = recv_buffer->next;
             pbuf_free(recv_buffer);
             recv_buffer = next;
-            printf("Buffer freed\n");
+            // printf("Buffer freed\n");
              fflush(stdout);
         }
-        printf("%c", byte);
+        fflush(stdout);
         return byte;
     }
 

@@ -5,6 +5,8 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include <Versatile_RotaryEncoder.h>
+#include "pot_reader.h"
+#include "debounce_button.h"
 
 #include "defines.h"
 #include "keypad_scan.h"
@@ -22,10 +24,14 @@ uint8_t keypad_pin_column[KEYPAD_COLUMN_NUM] =
 
 
 void core1_entry() {
+  int last_speed_value = -1; // Initialize to an invalid value
   Versatile_RotaryEncoder encoder(ROTARY_clk, ROTARY_dt, ROTARY_sw);
   PicoKeypad keypad(MAKE_KEYMAP(keypad_keys), keypad_pin_rows,
                     keypad_pin_column, KEYPAD_ROW_NUM, KEYPAD_COLUMN_NUM);
-  
+  PotReader pot_reader(POT_PIN);
+  picodebounce::PicoDebounceButton button(BUTTON_REVERSE_PIN, 10); // Button with 10ms debounce, active low
+
+
   encoder.setHandleRotate([](int direction) {
     if (direction == Versatile_RotaryEncoder::left) {
       input_type rotary_input = {
@@ -67,6 +73,7 @@ void core1_entry() {
 
   while (true) {
     encoder.ReadEncoder();
+
     char key = keypad.getKey();
     if (key != 0) {
       input_type keypad_input = {
@@ -74,6 +81,39 @@ void core1_entry() {
         .value = key
       };
       queue_add_blocking(&input_queue, &keypad_input);
+    }
+    int pot_value = pot_reader.readValue();
+    if (pot_value >= 0) {
+      // Scale pot_value (0-4095) to speed (0-MAX_LOCO_SPEED)
+      int speed = (pot_value * MAX_LOCO_SPEED) / 4095;
+      if (last_speed_value != speed) {
+        last_speed_value = speed;
+
+        printf("Potentiometer value: %d, Speed: %d\n", pot_value, speed);
+        input_type pot_input = {
+          .input_source = INPUT_POT,
+          .value = static_cast<uint8_t>(speed)
+        };
+        queue_add_blocking(&input_queue, &pot_input);
+      }
+    }
+
+    if(button.update()) {
+      if (button.getPressed()) {
+        printf("Button pressed, sending input\n");
+        input_type button_input = {
+          .input_source = INPUT_BUTTON_REVERSE,
+          .value = 1 // Button pressed
+        };
+        queue_add_blocking(&input_queue, &button_input);
+      } else if (button.getReleased()) {
+        printf("Button released, sending input\n");
+        input_type button_input = {
+          .input_source = INPUT_BUTTON_REVERSE,
+          .value = 0 // Button released
+        };
+        queue_add_blocking(&input_queue, &button_input);
+      }
     }
     sleep_ms(1);
   }

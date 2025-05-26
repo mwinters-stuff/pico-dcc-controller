@@ -46,7 +46,7 @@ void DisplayControls::drawScreen() {
   if (!redrawDisplay || !currentMenu) return;
 
   u8g2_ClearBuffer(&u8g2);
-  printf("Render menu:%lu ms\n", to_ms_since_boot(get_absolute_time()));
+  // printf("Render menu:%lu ms\n", to_ms_since_boot(get_absolute_time()));
   currentMenu->render();
   u8g2_SendBuffer(&u8g2);
   redrawDisplay = false;
@@ -54,12 +54,15 @@ void DisplayControls::drawScreen() {
 
 void DisplayControls::exitMenu() {
   currentMenu->clearAction();
-  printf("menu object destroyed\n");
+  // printf("menu object destroyed\n");
   endCurrentScreen = true;
 }
 
 void DisplayControls::loop() {
   drawScreen();
+  if(currentMenu) {
+    currentMenu->loop();
+  }
 
   input_type input_value;
   if (getFromQueue(input_value)) {
@@ -128,6 +131,12 @@ void DisplayControls::loop() {
     } else if (input_value.input_source == INPUT_KEYPAD) {
       printf("Key pressed: %c\n", input_value.value);
       keyAction(input_value.value);
+    } else if(input_value.input_source == INPUT_POT){
+      potAction(input_value.value);
+    } else if(input_value.input_source == INPUT_BUTTON_REVERSE){
+      buttonAction(input_value.input_source, input_value.value);
+    } else {
+      printf("Unknown input source: %d\n", input_value.input_source);
     }
   }
 
@@ -188,8 +197,6 @@ uint32_t DisplayControls::getDisplaySleepMicros() {
 }
 
 void DisplayControls::rotateAction(uint8_t action) {
-  if (!currentMenu) return;
-
   switch (action) {
     case ROTARY_LEFT:
       break;
@@ -204,6 +211,18 @@ void DisplayControls::keyAction(uint8_t action) {
   currentMenu->doKeyAction(action);
   redrawDisplay = true;
 }
+
+void DisplayControls::potAction(uint16_t value) {
+  currentMenu->doPotAction(value);
+  redrawDisplay = true;
+}
+
+void DisplayControls::buttonAction(uint8_t action, uint8_t value) {
+  currentMenu->doButtonAction(action, value);
+  redrawDisplay = true;
+}
+
+
 
 void DisplayControls::showScreen(
     std::shared_ptr<MuiMenu> menu,
@@ -223,7 +242,7 @@ void DisplayControls::showScreen2(
 }
 
 void DisplayControls::setRedraw() {
-  printf("setRedraw\n");
+  // printf("setRedraw\n");
   redrawDisplay = true;
 }
 
