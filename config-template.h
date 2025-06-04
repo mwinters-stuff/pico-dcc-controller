@@ -3,14 +3,14 @@
 
 // This file needs to be copied into "config.h" and customised.
 
+#define HOSTNAME "pico-throttle-1"
+
 #define WIFI_AP "ACCESS"
 #define WIFI_PASS "PASS"
 #define WIFI_AUTH CYW43_AUTH_WPA2_AES_PSK
 
-#define DCCEX_ADDRESS_1 {192,168,1,100}
-// #define DCCEX_ADDRESS_2 {192,168,1,100}
-// #define DCCEX_ADDRESS_3 {192,168,1,100}
-// #define DCCEX_ADDRESS_4 {192,168,1,100}
+#define DCCEX_ADDRESSES "Main|192.168.1.229|2560,test|192.168.1.225|2560"
+#define DCCEX_PORT 2560
 
 // minutes until display sleep.
 #define DISPLAY_SLEEP 1

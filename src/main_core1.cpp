@@ -29,7 +29,7 @@ void core1_entry() {
   PicoKeypad keypad(MAKE_KEYMAP(keypad_keys), keypad_pin_rows,
                     keypad_pin_column, KEYPAD_ROW_NUM, KEYPAD_COLUMN_NUM);
   PotReader pot_reader(POT_PIN);
-  picodebounce::PicoDebounceButton button(BUTTON_REVERSE_PIN, 10); // Button with 10ms debounce, active low
+  picodebounce::PicoDebounceButton reverseButton(BUTTON_REVERSE_PIN, 10); // Button with 10ms debounce, active low
 
 
   encoder.setHandleRotate([](int direction) {
@@ -85,8 +85,12 @@ void core1_entry() {
     int pot_value = pot_reader.readValue();
     if (pot_value >= 0) {
       // Scale pot_value (0-4095) to speed (0-MAX_LOCO_SPEED)
-      int speed = (pot_value * MAX_LOCO_SPEED) / 4095;
-      if (last_speed_value != speed) {
+      int speed = pot_value;
+      if(speed == 1) {
+        speed = 0; // Treat 1 as stop
+      }
+      if (last_speed_value + 1 < speed || last_speed_value - 1 > speed ) {
+        // Only send input if the speed value has changed significantly
         last_speed_value = speed;
 
         printf("Potentiometer value: %d, Speed: %d\n", pot_value, speed);
@@ -98,15 +102,15 @@ void core1_entry() {
       }
     }
 
-    if(button.update()) {
-      if (button.getPressed()) {
+    if(reverseButton.update()) {
+      if (reverseButton.getPressed()) {
         printf("Button pressed, sending input\n");
         input_type button_input = {
           .input_source = INPUT_BUTTON_REVERSE,
           .value = 1 // Button pressed
         };
         queue_add_blocking(&input_queue, &button_input);
-      } else if (button.getReleased()) {
+      } else if (reverseButton.getReleased()) {
         printf("Button released, sending input\n");
         input_type button_input = {
           .input_source = INPUT_BUTTON_REVERSE,

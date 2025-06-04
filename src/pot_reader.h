@@ -4,7 +4,7 @@
 class PotReader {
   private:
     uint8_t _pin; // Pin number for the potentiometer
-
+    int16_t _lastValue = -1;
   public:
 
     PotReader(uint8_t pin);

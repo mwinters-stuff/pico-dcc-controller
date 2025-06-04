@@ -15,6 +15,8 @@ class CabControl: public MuiMenu, public std::enable_shared_from_this<CabControl
     POT,
   };
 
+  enum class PotState { BELOW, MATCHED, ABOVE };
+
   public:
     CabControl(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls) {
       queue_init(&speed_update_queue, sizeof(uint8_t), 1);
@@ -66,6 +68,8 @@ class CabControl: public MuiMenu, public std::enable_shared_from_this<CabControl
     std::string speed_str;
     std::string direction_str;
     SpeedActionFrom speedActionFrom{SpeedActionFrom::NONE};
+    PotState potState = PotState::MATCHED;
+    bool potReady = false;
 
 
     void setSpeedWithDelay(uint8_t set_speed);

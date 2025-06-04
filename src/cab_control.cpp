@@ -134,7 +134,7 @@ void CabControl::change_speed(bool increase) {
 }
 
 void CabControl::change_direction(bool forward) {
-  if (loco->getSpeed() != 0) {
+  if (loco->getSpeed() > 0) {
     return;
   }
   loco->setDirection(forward ? DCCExController::Forward
@@ -186,6 +186,17 @@ bool CabControl::doKeyAction(int8_t action) {
 }
 
 void CabControl::doPotAction(uint16_t value) {
+  // Ignore pot input until it reaches 0 after startup
+  if (!potReady) {
+    if (value == 0) {
+      potReady = true;
+      printf("Pot ready, accepting input\n");
+    } else {
+      printf("Ignoring pot input until zero (current: %d)\n", value);
+      return;
+    }
+  }
+
   if (speedActionFrom == SpeedActionFrom::POT) {
     speed = value;
     setSpeedWithDelay(speed);
@@ -193,18 +204,26 @@ void CabControl::doPotAction(uint16_t value) {
     return;
   }
 
-  if (value > speed) {
-    speed = value;
-    setSpeedWithDelay(speed);
-    printf("Set Pot speed: up %d\n", speed);
-    speedActionFrom = SpeedActionFrom::POT;
-  } else if (speed < value) {
-    speed = value;
-    setSpeedWithDelay(speed);
-    printf("Set Pot speed down: %d\n", speed);
-    speedActionFrom = SpeedActionFrom::POT;
+  if (value < speed) {
+    if (potState != PotState::BELOW) {
+      speed = value;
+      setSpeedWithDelay(speed);
+      printf("Pot takeover: speed down to %d\n", speed);
+      speedActionFrom = SpeedActionFrom::POT;
+    }
+    potState = PotState::BELOW;
+    return;
+  } else if (value > speed) {
+    if (potState != PotState::ABOVE) {
+      speed = value;
+      setSpeedWithDelay(speed);
+      printf("Pot takeover: speed up to %d\n", speed);
+      speedActionFrom = SpeedActionFrom::POT;
+    }
+    potState = PotState::ABOVE;
+    return;
   } else {
-    // No change in speed
+    potState = PotState::MATCHED;
     printf("Potentiometer speed unchanged: %d (%d)\n", value, speed);
   }
 }
