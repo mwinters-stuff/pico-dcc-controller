@@ -23,17 +23,19 @@
 // Ensure DisplayControls inherits from enable_shared_from_this in the header file
 
 DisplayControls::DisplayControls() {
-  u8g2_Setup_ssd1306_i2c_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_hw_i2c,
-                                         u8x8_gpio_and_delay_hw_i2c);
-};
-
-DisplayControls::~DisplayControls() {
   i2c_init(I2C_PORT, 400 * 1000);
 
   gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
   gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
   gpio_pull_up(I2C_SDA);
   gpio_pull_up(I2C_SCL);
+
+  u8g2_Setup_ssd1306_i2c_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_hw_i2c,
+                                         u8x8_gpio_and_delay_hw_i2c);
+};
+
+DisplayControls::~DisplayControls() {
+
 };
 
 void DisplayControls::begin() {

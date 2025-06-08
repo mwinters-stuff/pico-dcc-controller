@@ -36,6 +36,8 @@ include(pico_sdk_import.cmake)
 project(pico-dcc-controller C CXX ASM)
 
 set(PICO_CXX_ENABLE_EXCEPTIONS 1)
+set(PICO_SENSORS_FETCH_FROM_GIT 1)
+include(pico_sensors_import.cmake)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -103,6 +105,7 @@ target_link_libraries(pico-dcc-controller
         MuiPlusPlus
         DCCEXProtocol
         pico_lwip_mdns
+        sensor_PCF8575
         )
 
 pico_add_extra_outputs(pico-dcc-controller)

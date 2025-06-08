@@ -6,12 +6,15 @@
 #include "pico/cyw43_arch.h"
 #include <Versatile_RotaryEncoder.h>
 #include "pot_reader.h"
-#include "debounce_button.h"
+// #include "debounce_button.h"
+#include "debounce_button_pcf8575.h"
+
 
 #include "defines.h"
 #include "keypad_scan.h"
 #include "pico/multicore.h"
 #include "pico/util/queue.h"
+#include "sensor/PCF8575.h"
 
 queue_t input_queue;
 
@@ -29,8 +32,24 @@ void core1_entry() {
   PicoKeypad keypad(MAKE_KEYMAP(keypad_keys), keypad_pin_rows,
                     keypad_pin_column, KEYPAD_ROW_NUM, KEYPAD_COLUMN_NUM);
   PotReader pot_reader(POT_PIN);
-  picodebounce::PicoDebounceButton reverseButton(BUTTON_REVERSE_PIN, 10); // Button with 10ms debounce, active low
+  // picodebounce::PicoDebounceButton reverseButton(BUTTON_REVERSE_PIN, 10); // Button with 10ms debounce, active low
 
+
+  i2c_init(I2C_PORT_1, 400 * 1000);
+
+  gpio_set_function(I2C_SDA_1, GPIO_FUNC_I2C);
+  gpio_set_function(I2C_SCL_1, GPIO_FUNC_I2C);
+  gpio_pull_up(I2C_SDA_1);
+  gpio_pull_up(I2C_SCL_1);
+
+
+  PCF8575 pcf8575(PCF8574_I2C_ADDR);
+  if (!pcf8575.begin(I2C_PORT_1)) {
+    printf("PCF8575 initialization failed!\n");
+    return;
+  }
+
+  picodebounce::PCF8575DebounceButton reverseButtonPCF(&pcf8575, PCF8574_PIN_REVERSE, 10); // Button with 10ms debounce, active low
 
   encoder.setHandleRotate([](int direction) {
     if (direction == Versatile_RotaryEncoder::left) {
@@ -102,16 +121,16 @@ void core1_entry() {
       }
     }
 
-    if(reverseButton.update()) {
-      if (reverseButton.getPressed()) {
-        printf("Button pressed, sending input\n");
+    if(reverseButtonPCF.update()) {
+      if (reverseButtonPCF.getPressed()) {
+        printf("PCF Button pressed, sending input\n");
         input_type button_input = {
           .input_source = INPUT_BUTTON_REVERSE,
           .value = 1 // Button pressed
         };
         queue_add_blocking(&input_queue, &button_input);
-      } else if (reverseButton.getReleased()) {
-        printf("Button released, sending input\n");
+      } else if (reverseButtonPCF.getReleased()) {
+        printf("PCF Button released, sending input\n");
         input_type button_input = {
           .input_source = INPUT_BUTTON_REVERSE,
           .value = 0 // Button released

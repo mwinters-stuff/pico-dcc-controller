@@ -4,8 +4,12 @@
 // #define USE_MDNS 0
 
 #define I2C_PORT i2c0
-#define I2C_SDA 4
-#define I2C_SCL 5
+#define I2C_SDA PICO_DEFAULT_I2C_SDA_PIN
+#define I2C_SCL PICO_DEFAULT_I2C_SCL_PIN
+
+#define I2C_PORT_1 i2c1
+#define I2C_SDA_1 2
+#define I2C_SCL_1 3
 
 #define ROTARY_clk 20
 #define ROTARY_dt 21
@@ -32,6 +36,8 @@
 
 #define POT_PIN 26
 #define BUTTON_REVERSE_PIN 16
+#define PCF8574_I2C_ADDR 0x20
+#define PCF8574_PIN_REVERSE 0 // PCF8574 pin for reverse button
 
 struct input_type{
   uint8_t input_source;
