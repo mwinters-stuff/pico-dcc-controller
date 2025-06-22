@@ -2,7 +2,7 @@
 #define _DEFINES_H
 
 // #define USE_MDNS 0
-
+// 4 and 5 are used by the I2C bus
 #define I2C_PORT i2c0
 #define I2C_SDA PICO_DEFAULT_I2C_SDA_PIN
 #define I2C_SCL PICO_DEFAULT_I2C_SCL_PIN
@@ -13,7 +13,7 @@
 
 #define ROTARY_clk 20
 #define ROTARY_dt 21
-#define ROTARY_sw 14
+#define ROTARY_sw 19
 
 #define ROTARY_LEFT 0
 #define ROTARY_RIGHT 1
@@ -24,20 +24,54 @@
 #define KEYPAD_ROW_NUM     4
 #define KEYPAD_COLUMN_NUM  4
 #define KEYPAD_KEYS {'1', '2', '3', 'A'},  {'4', '5', '6', 'B'},  {'7', '8', '9', 'C'},  {'*', '0', '#', 'D'}
-#define KEYPAD_COLUMN_PINS    {6, 7, 8, 9}
-#define KEYPAD_ROW_PINS {10, 11, 12, 13}
+#define KEYPAD_COLUMN_PINS    {13, 12, 11, 10}
+#define KEYPAD_ROW_PINS {9, 8, 7, 6}
 
 #define INPUT_ROTARY 1
 #define INPUT_KEYPAD 2
 #define INPUT_POT 3
 #define INPUT_BUTTON_REVERSE 4
+#define INPUT_BUTTON_LOCO_1 5
+#define INPUT_BUTTON_LOCO_2 6
+#define INPUT_BUTTON_LOCO_3 7
+#define INPUT_BUTTON_LOCO_4 8
+#define INPUT_BUTTON_STOP_ALL 9
 
-
+#define INPUT_BUTTONS_NAME {"","Rotary","Keypad","Pot","Reverse", "Loco 1", "Loco 2", "Loco 3", "Loco 4", "Stop All"}
 
 #define POT_PIN 26
-#define BUTTON_REVERSE_PIN 16
-#define PCF8574_I2C_ADDR 0x20
-#define PCF8574_PIN_REVERSE 0 // PCF8574 pin for reverse button
+
+
+#define PCF8575_I2C_ADDR 0x20
+
+// PCF8575 pins
+
+#define PCF8575_PIN_LOCO_SHOW_SPEED_1 7
+#define PCF8575_PIN_LOCO_SHOW_SPEED_2 6
+#define PCF8575_PIN_LOCO_SHOW_SPEED_3 5
+#define PCF8575_PIN_LOCO_SHOW_SPEED_4 4
+#define PCF8575_PIN_LOCO_SHOW_SPEED_5 3
+#define PCF8575_PIN_LOCO_SHOW_SPEED_6 2
+#define PCF8575_PIN_LOCO_SHOW_SPEED_7 1
+#define PCF8575_PIN_LOCO_SHOW_SPEED_8 0
+
+
+#define PCF8575_PIN_LOCO_1 8
+#define PCF8575_PIN_LOCO_2 9
+#define PCF8575_PIN_LOCO_3 10
+#define PCF8575_PIN_LOCO_4 11
+
+#define PCF8575_PIN_LOCO_LED_1 12
+#define PCF8575_PIN_LOCO_LED_2 13
+#define PCF8575_PIN_LOCO_LED_3 14
+#define PCF8575_PIN_LOCO_LED_4 15
+
+
+// pin buttons
+#define PIN_REVERSE 17
+#define PIN_STOP_ALL 16
+
+#define DEBOUNCE_TIME_MS 10 // milliseconds
 
 struct input_type{
   uint8_t input_source;

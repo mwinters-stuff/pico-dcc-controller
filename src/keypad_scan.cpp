@@ -4,7 +4,7 @@
 #include <hardware/pio.h>
 #include <pico/stdlib.h>
 
-PicoKeypad::PicoKeypad(char *keymap, uint8_t *rowPins, uint8_t *columnPins,
+PicoKeypad::PicoKeypad(char *keymap, const uint8_t *rowPins, const uint8_t *columnPins,
                        uint8_t numRows, uint8_t numCols) {
   _keymap = keymap;
   _row_pins = rowPins;

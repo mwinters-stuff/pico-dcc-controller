@@ -1,13 +1,12 @@
-#ifndef CAB_CONTROL_H
-#define CAB_CONTROL_H
+#ifndef LOCO_CONTROL_H
+#define LOCO_CONTROL_H
 
 #include <memory>
-#include "display_controls.h"
-#include "mui_menu.h"
+#include "action_interface.h"
 #include <DCCEXLoco.h>
 #include "pico/util/queue.h"
 
-class CabControl: public MuiMenu, public std::enable_shared_from_this<CabControl> {
+class LocoControl: public ActionInterface, public std::enable_shared_from_this<LocoControl> {
   enum class SpeedActionFrom{
     NONE,
     ROTARY,
@@ -18,18 +17,23 @@ class CabControl: public MuiMenu, public std::enable_shared_from_this<CabControl
   enum class PotState { BELOW, MATCHED, ABOVE };
 
   public:
-    CabControl(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls) {
+    LocoControl(uint8_t button_index):
+    button_index(button_index), loco(nullptr), speed(0), speedActionFrom(SpeedActionFrom::NONE), potState(PotState::MATCHED), potReady(false) {
       queue_init(&speed_update_queue, sizeof(uint8_t), 1);
     };
-    ~CabControl(){
-      queue_free(&speed_update_queue);
+
+    virtual ~LocoControl(){
     };
 
-    MenuList getMenu() override { return MenuList::CAB_CONTROL; };
-    MenuList backMenu() override { return MenuList::SHOW_ROSTER; };
-    
-    void buildMenu(u8g2_t &u8g2) override;
-    void showMenu() override;
+    // static std::shared_ptr<LocoControl> initInstance(){
+    //   instance = std::shared_ptr<LocoControl>(new LocoControl());
+    //   return instance;
+    // }
+
+    // static std::shared_ptr<LocoControl> getInstance(){
+    //   return LocoControl::instance;
+    // }
+
     bool doAction() override;
     bool doLongPressAction() override;
     bool doMoveLeftAction() override;
@@ -38,15 +42,13 @@ class CabControl: public MuiMenu, public std::enable_shared_from_this<CabControl
     void doPotAction(uint16_t value) override;
     void doButtonAction(uint8_t action, uint8_t value)override;
     void loop() override;
-
-    std::string getName() override { return "CabControl"; };
     
     void setLoco(DCCExController::Loco *loco) {
       this->loco = loco;
       if (loco != nullptr) {
-        printf("CabControl: setLoco: %d\n", loco->getAddress());
+        printf("LocoControl: setLoco: %d\n", loco->getAddress());
       } else {
-        printf("CabControl: setLoco: nullptr\n");
+        printf("LocoControl: setLoco: nullptr\n");
       }
       
     }
@@ -60,10 +62,17 @@ class CabControl: public MuiMenu, public std::enable_shared_from_this<CabControl
     queue_t speed_update_queue;
 
   private:
+    
+
     void change_speed(bool increase);
     void change_direction(bool forward);
+    void setSpeedLED(uint8_t set_speed);
+
+    // static std::shared_ptr<LocoControl> instance;
+    int button_index{0};
+    bool isActive{false};
     DCCExController::Loco *loco;
-    muiItemId speed_idx;
+
     uint8_t speed{0};
     std::string speed_str;
     std::string direction_str;

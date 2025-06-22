@@ -10,6 +10,8 @@
 #include "wifi_control.h"
 #include "main_core1.h"
 #include "main_menu.h"
+#include "loco_controller.h"
+#include "loco_control.h"
 
 int main() {
   stdio_init_all();
@@ -35,11 +37,14 @@ int main() {
 
   auto mainMenu = std::make_shared<MainMenu>(displayControls);
   mainMenu->showMenu();
+
+  auto locoController = LocoController::initInstance();
   
   while (true) {
     cyw43_arch_poll();
     displayControls->loop();
     wifiControl->loop();
+    locoController->loop();
     sleep_ms(10);  // Small delay to avoid busy looping
   }
 }

@@ -14,7 +14,7 @@
 #include "show_roster.h"
 #include "show_turnouts.h"
 #include "dcc_menu.h"
-#include "cab_control.h"
+#include "cab_control_menu.h"
 
 #define MAIN_MENU_FONT u8g2_font_bauhaus2015_tr
 #define SMALL_TEXT_FONT u8g2_font_glasstown_nbp_t_all
@@ -30,8 +30,9 @@ DisplayControls::DisplayControls() {
   gpio_pull_up(I2C_SDA);
   gpio_pull_up(I2C_SCL);
 
-  u8g2_Setup_ssd1306_i2c_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_hw_i2c,
-                                         u8x8_gpio_and_delay_hw_i2c);
+  // u8g2_Setup_ssd1306_i2c_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_hw_i2c, u8x8_gpio_and_delay_hw_i2c);
+  u8g2_Setup_sh1106_i2c_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_hw_i2c, u8x8_gpio_and_delay_hw_i2c);
+  
 };
 
 DisplayControls::~DisplayControls() {
@@ -135,7 +136,8 @@ void DisplayControls::loop() {
       keyAction(input_value.value);
     } else if(input_value.input_source == INPUT_POT){
       potAction(input_value.value);
-    } else if(input_value.input_source == INPUT_BUTTON_REVERSE){
+    } else if(input_value.input_source >= INPUT_BUTTON_REVERSE && 
+              input_value.input_source <= INPUT_BUTTON_STOP_ALL) {
       buttonAction(input_value.input_source, input_value.value);
     } else {
       printf("Unknown input source: %d\n", input_value.input_source);
@@ -166,7 +168,7 @@ void DisplayControls::loop() {
           currentMenu = std::make_shared<DCCMenu>(shared_from_this());
           break;
         case MenuList::CAB_CONTROL:
-          currentMenu = std::make_shared<CabControl>(shared_from_this());
+          currentMenu = std::make_shared<CabControlMenu>(shared_from_this());
           break;
         default:
           printf("EndCurrentScreen Unknown menu\n");

@@ -8,14 +8,18 @@
 #include "display_controls.h"
 #include "pico/stdlib.h"
 #include "wifi_control.h"
-#include "cab_control.h"
+#include "cab_control_menu.h"
+#include "loco_controller.h"
+#include "main_core1.h"
+#include "mui_menu_custom_items.h"
+
 
 ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls), menu(){
   auto loco = DCCExController::Loco::getFirst();
   while (loco != nullptr) {
     menuItem item;
     item.value = loco->getAddress();
-    item.label = loco->getName();
+    strncpy(item.label, loco->getName(), NAME_MAX_LENGTH - 1);
     item.loco = loco;
     menu.push_back(item);
     loco = loco->getNext();
@@ -26,7 +30,7 @@ ShowRosterMenu::ShowRosterMenu(std::shared_ptr<DisplayControls> displayControls)
   }
   menuItem item;
   item.value = 0xff;
-  item.label = "Back";
+  strncpy(item.label, "Back", NAME_MAX_LENGTH - 1);
   menu.push_back(item);
 }
 
@@ -39,6 +43,21 @@ void ShowRosterMenu::showMenu() {
 
 }
 
+void ShowRosterMenu::getLocoIndexNames() {
+  for (size_t i = 0; i < menu.size() - 1; ++i) {
+    auto loco = menu.at(i).loco;
+    if (loco != nullptr) {
+      uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);
+      if (buttonIndex != 0xff) {
+        snprintf(menu.at(i).label, NAME_MAX_LENGTH, "%d: %s", buttonIndex, loco->getName());
+      } else {
+        snprintf(menu.at(i).label, NAME_MAX_LENGTH, " : %s", loco->getName());
+      }
+    }
+  }
+
+}
+
 void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
   // create root page
   muiItemId root_page = makePage("Roster");  // provide a label for the page
@@ -48,23 +67,33 @@ void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
       new MuiItem_U8g2_PageTitle(u8g2, nextIndex(), PAGE_TITLE_FONT_SMALL),
       root_page);
 
+  getLocoIndexNames();
+
   // create and add to main page a list with settings selection options
   muiItemId scroll_list_id = nextIndex();
 
+
   
 
-  auto list = new MuiItem_U8g2_DynamicScrollList(
+  auto list = new Custom_U8g2_DynamicScrollList(
       u8g2,            // U8g2 object to draw to
       scroll_list_id,  // ID for the item
       [this](size_t index) {
-        return menu.at(index).label;
+        return menu.at(index).label;  // callback to get label for each item
       },
       // next callback is called by DynamicScrollList to find out the size
       // (total number) of elements in a list
       [this]() { return menu.size(); },
       [this](size_t index) {
-          selectedItem = menu.at(index);
-          printf("Selected: %s\n", selectedItem.label);
+          selectedItem = &menu.at(index);
+          printf("Selected: %s\n", selectedItem->label);
+      },
+      [this](size_t index) {
+        highlightIndex = index;
+        auto highlighted = &menu.at(index);
+        printf("Highlighted: %s\n", highlighted->label);
+        // if highlighted item is a loco, we can show its LED
+        showButtonLED(index);
       },
       MAIN_MENU_Y_SHIFT,
       MAIN_MENU_ROWS,  // offset for each line of text and total number of lines
@@ -111,7 +140,7 @@ void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
 }
 
 bool ShowRosterMenu::doAction(){
-  switch(selectedItem.value){
+  switch(selectedItem->value){
     case 0xff:
       // back button pressed
       displayControls->exitMenu();
@@ -119,10 +148,11 @@ bool ShowRosterMenu::doAction(){
       break;
     default:
       // selectedItem.value is a loco address
-      printf("Selected loco: %d\n", selectedItem.value);
-      auto menu = std::make_shared<CabControl>(displayControls);
+      printf("Selected loco: %d\n", selectedItem->value);
+
+      auto menu = std::make_shared<CabControlMenu>(displayControls);
       
-      menu->setLoco(selectedItem.loco);
+      menu->setLoco(selectedItem->loco);
       menu->showMenu();
       break;
   }
@@ -130,7 +160,7 @@ bool ShowRosterMenu::doAction(){
 }
 
 void ShowRosterMenu::clearAction(){
-  selectedItem.value = -1;
+  selectedItem = nullptr;
 }
 
 bool ShowRosterMenu::doLongPressAction(){
@@ -138,3 +168,32 @@ bool ShowRosterMenu::doLongPressAction(){
   return false;
 }
 
+
+void ShowRosterMenu::doButtonAction(uint8_t action, uint8_t value) {
+  if(action >= INPUT_BUTTON_LOCO_1 && action <= INPUT_BUTTON_LOCO_4) {
+    // Handle loco button actions
+    uint8_t locoIndex = action - INPUT_BUTTON_LOCO_1;
+    if (locoIndex < menu.size() && highlightIndex < menu.size() - 1) {
+      auto loco = menu.at(locoIndex).loco;
+      printf("Selected loco: %s Button %d\n", loco->getName(), locoIndex);
+      LocoController::getInstance()->setLoco(locoIndex, loco);
+      // Show the button LED for the selected loco
+      showButtonLED(locoIndex);
+    }
+  }
+
+}
+
+void ShowRosterMenu::showButtonLED(int menuIndex){
+  // Show button LED for the selected loco
+  turn_off_loco_leds(); // Turn off all LEDs first
+  auto loco = menu.at(menuIndex).loco;
+  uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);  
+  if (buttonIndex != 0xff) {
+    printf("Showing LED for button %d\n", buttonIndex);
+    queue_led_command(get_loco_led_from_input(buttonIndex), true);
+  } else {
+    printf("No button assigned for this loco\n");
+  }
+
+}
