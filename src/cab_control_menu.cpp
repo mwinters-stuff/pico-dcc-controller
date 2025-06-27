@@ -10,6 +10,8 @@
 #include "pico/stdlib.h"
 #include "pico/time.h"
 #include "wifi_control.h"
+#include "loco_controller.h"
+
 
 void CabControlMenu::showMenu() {
   displayControls->showScreen(shared_from_this(),
@@ -38,19 +40,17 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
   u8g2_SetFont(&u8g2, PAGE_TITLE_FONT_SMALL);
   int item_y_offset = u8g2_GetMaxCharHeight(&u8g2);
 
-  addMuippItem(
-      new MuiItem_U8g2_ValuesList(
-          u8g2, speed_idx, "Speed",
-          [&]() {
-            speed_str = std::to_string(loco->getSpeed());
-            return speed_str.data();
-          },                               
-          [&]() { },   
-          [&]() { },  
-          0, u8g2_GetDisplayWidth(&u8g2), item_y_offset,  // cursor point
-          PAGE_TITLE_FONT, text_align_t::left, text_align_t::right,
-          text_align_t::top),  // justify value to the right
-      root_page);
+  addMuippItem(new MuiItem_U8g2_ValuesList(
+                   u8g2, speed_idx, "Speed",
+                   [&]() {
+                     speed_str = std::to_string(loco->getSpeed());
+                     return speed_str.data();
+                   },
+                   [&]() {}, [&]() {}, 0, u8g2_GetDisplayWidth(&u8g2),
+                   item_y_offset,  // cursor point
+                   PAGE_TITLE_FONT, text_align_t::left, text_align_t::right,
+                   text_align_t::top),  // justify value to the right
+               root_page);
 
   u8g2_SetFont(&u8g2, PAGE_TITLE_FONT);
   item_y_offset += u8g2_GetMaxCharHeight(&u8g2);
@@ -89,12 +89,17 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
   menuStart(root_page);
 }
 
-
-
-
-bool CabControlMenu::doAction() {
-  return true;
+void CabControlMenu::setLoco(DCCExController::Loco *loco) {
+  this->loco = loco;
+  LocoController::getInstance()->driveLoco(loco);
+  if (loco != nullptr) {
+    printf("CabControlMenu: setLoco: %d\n", loco->getAddress());
+  } else {
+    printf("CabControlMenu: setLoco: nullptr\n");
+  }
 }
+
+bool CabControlMenu::doAction() { return true; }
 
 bool CabControlMenu::doLongPressAction() {
   displayControls->exitMenu();
@@ -113,7 +118,4 @@ bool CabControlMenu::doKeyAction(int8_t action) {
   return true;
 }
 
-
-void CabControlMenu::loop() {
-  displayControls->setRedraw();
-}
+void CabControlMenu::loop() { displayControls->setRedraw(); }

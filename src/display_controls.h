@@ -82,6 +82,8 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   void handleLongPressRelease();
   // void listPreviousMenus();
 
+
+  std::vector<std::shared_ptr<ActionInterface>> actionInterfaces = {};
  public:
   // constructor
   DisplayControls();
@@ -133,6 +135,11 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   DCCConnectionEntry getDCCConnectionEntry() {
     return dccConnectionEntry;
   }
+
+  void addActionInterface(std::shared_ptr<ActionInterface> actionInterface) {
+    actionInterfaces.push_back(actionInterface);
+  }
+  
 };
 
 #endif

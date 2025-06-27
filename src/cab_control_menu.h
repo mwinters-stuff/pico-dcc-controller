@@ -38,15 +38,7 @@ class CabControlMenu: public MuiMenu, public std::enable_shared_from_this<CabCon
 
     std::string getName() override { return "CabControlMenu"; };
     
-    void setLoco(DCCExController::Loco *loco) {
-      this->loco = loco;
-      if (loco != nullptr) {
-        printf("CabControlMenu: setLoco: %d\n", loco->getAddress());
-      } else {
-        printf("CabControlMenu: setLoco: nullptr\n");
-      }
-      
-    }
+    void setLoco(DCCExController::Loco *loco) ;
     
     DCCExController::Loco *getLoco() {
       return loco;

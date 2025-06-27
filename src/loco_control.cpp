@@ -3,12 +3,31 @@
 #include <stdio.h>
 
 #include "defines.h"
+#include "main_core1.h"
 #include "pico/stdlib.h"
 #include "pico/time.h"
 #include "wifi_control.h"
-#include "main_core1.h"
+#include "display_controls.h"
 
-//std::shared_ptr<LocoControl> LocoControl::instance;
+std::shared_ptr<LocoControl> LocoControl::instance;
+
+    LocoControl::LocoControl(): loco(nullptr), speed(0), speedActionFrom(SpeedActionFrom::NONE), potState(PotState::MATCHED), potReady(false) {
+      queue_init(&speed_update_queue, sizeof(uint8_t), 1);
+    };
+
+void LocoControl::init(std::shared_ptr<DisplayControls> displayControls) {
+    displayControls->addActionInterface(shared_from_this());
+}
+
+void LocoControl::setLoco(DCCExController::Loco *loco) {
+  this->loco = loco;
+  if (loco != nullptr) {
+    printf("LocoControl: setLoco: %d\n", loco->getAddress());
+  } else {
+    printf("LocoControl: setLoco: nullptr\n");
+  }
+  setSpeedLED((uint8_t)loco->getSpeed());
+}
 
 static int64_t set_speed_callback(alarm_id_t id, void *user_data) {
   LocoControl *cab = static_cast<LocoControl *>(user_data);
@@ -27,37 +46,30 @@ void LocoControl::setSpeedWithDelay(uint8_t set_speed) {
     cancel_alarm(speed_alarm_id);
     speed_alarm_id = 0;
   }
-    // Clamp set_speed to MAX_LOCO_SPEED
+  // Clamp set_speed to MAX_LOCO_SPEED
   if (set_speed > MAX_LOCO_SPEED) {
-      set_speed = MAX_LOCO_SPEED;
-  } 
+    set_speed = MAX_LOCO_SPEED;
+  }
   pending_speed = set_speed;
   setSpeedLED(set_speed);
   // Set a new alarm for 100ms
   speed_alarm_id = add_alarm_in_ms(200, set_speed_callback, this, false);
-
 }
 
 void LocoControl::setSpeedLED(uint8_t set_speed) {
-    // There are 8 LEDs, so divide the speed range into 8 steps
-    const uint8_t led_pins[8] = {
-        PCF8575_PIN_LOCO_SHOW_SPEED_1,
-        PCF8575_PIN_LOCO_SHOW_SPEED_2,
-        PCF8575_PIN_LOCO_SHOW_SPEED_3,
-        PCF8575_PIN_LOCO_SHOW_SPEED_4,
-        PCF8575_PIN_LOCO_SHOW_SPEED_5,
-        PCF8575_PIN_LOCO_SHOW_SPEED_6,
-        PCF8575_PIN_LOCO_SHOW_SPEED_7,
-        PCF8575_PIN_LOCO_SHOW_SPEED_8
-    };
+  // There are 8 LEDs, so divide the speed range into 8 steps
+  const uint8_t led_pins[8] = {
+      PCF8575_PIN_LOCO_SHOW_SPEED_1, PCF8575_PIN_LOCO_SHOW_SPEED_2,
+      PCF8575_PIN_LOCO_SHOW_SPEED_3, PCF8575_PIN_LOCO_SHOW_SPEED_4,
+      PCF8575_PIN_LOCO_SHOW_SPEED_5, PCF8575_PIN_LOCO_SHOW_SPEED_6,
+      PCF8575_PIN_LOCO_SHOW_SPEED_7, PCF8575_PIN_LOCO_SHOW_SPEED_8};
 
+  // Calculate which LED to turn on (0-7)
+  uint8_t step = (set_speed * 8) / (MAX_LOCO_SPEED + 1);
 
-    // Calculate which LED to turn on (0-7)
-    uint8_t step = (set_speed * 8) / (MAX_LOCO_SPEED + 1);
-
-    for (uint8_t i = 0; i < 8; ++i) {
-        queue_led_command(led_pins[i], i == step && set_speed > 0);
-    }
+  for (uint8_t i = 0; i < 8; ++i) {
+    queue_led_command(led_pins[i], i == step && set_speed > 0);
+  }
 }
 
 void LocoControl::change_speed(bool increase) {
@@ -175,13 +187,7 @@ void LocoControl::loop() {
         loco, loco->getSpeed(), loco->getDirection());
     printf("Sent speed update via WiFi: %d\n", loco->getSpeed());
   }
-  
 }
 
 bool LocoControl::doAction() { return false; }
 bool LocoControl::doLongPressAction() { return false; }
-
-
-
-
-

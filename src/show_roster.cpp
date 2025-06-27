@@ -170,18 +170,23 @@ bool ShowRosterMenu::doLongPressAction(){
 
 
 void ShowRosterMenu::doButtonAction(uint8_t action, uint8_t value) {
-  if(action >= INPUT_BUTTON_LOCO_1 && action <= INPUT_BUTTON_LOCO_4) {
-    // Handle loco button actions
-    uint8_t locoIndex = action - INPUT_BUTTON_LOCO_1;
-    if (locoIndex < menu.size() && highlightIndex < menu.size() - 1) {
-      auto loco = menu.at(locoIndex).loco;
-      printf("Selected loco: %s Button %d\n", loco->getName(), locoIndex);
+
+}
+
+bool ShowRosterMenu::doKeyAction(int8_t action) {
+  // Handle key actions
+ if (action >= '1' && action <= '4') {
+    // Handle loco selection by key
+    uint8_t locoIndex = action - '1';
+    if (locoIndex < 4 && highlightIndex < menu.size() - 1) {
+      auto loco = menu.at(highlightIndex).loco;
+      printf("Selected loco: %s Key %d\n", loco->getName(), locoIndex);
       LocoController::getInstance()->setLoco(locoIndex, loco);
       // Show the button LED for the selected loco
-      showButtonLED(locoIndex);
+      showButtonLED(highlightIndex);
     }
   }
-
+  return true;
 }
 
 void ShowRosterMenu::showButtonLED(int menuIndex){

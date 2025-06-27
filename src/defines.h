@@ -72,6 +72,9 @@
 #define PIN_STOP_ALL 16
 
 #define DEBOUNCE_TIME_MS 10 // milliseconds
+#define BUTTON_PRESSED 1
+#define BUTTON_RELEASED 0
+#define BUTTON_LONG_PRESS 2
 
 struct input_type{
   uint8_t input_source;

@@ -17,18 +17,11 @@ class DCCConnectionMenu : public MuiMenu, public std::enable_shared_from_this<DC
  protected:
 
   size_t selectedIndex = -1;
-  std::vector<DCCConnectionEntry> addresses;
   std::shared_ptr<MuiMenu> dccMenu;
   std::string str = "";
-  uint8_t mdns_request_id;
-  std::unique_ptr<DCCConnectionEntry> mdns_search_result;
-
-  void discoverMDNSWithrottle();
-  void checkAddHost();
 
  public:
   DCCConnectionMenu(std::shared_ptr<DisplayControls> displayControls);
-  void parseDCCEXAddresses(const std::string &input);
   virtual ~DCCConnectionMenu() {};
 
   MenuList getMenu() override { return MenuList::DCC_CONNECTION; };
@@ -39,10 +32,6 @@ class DCCConnectionMenu : public MuiMenu, public std::enable_shared_from_this<DC
   bool doAction() override;
   void clearAction() override;
   std::string getName() override  { return "DCCConnection"; };
-
-
-  std::string dns_label_to_string(const char *label, int maxlen);
-  void print_dns_txt(const char *txt, int len);
 
 };
 

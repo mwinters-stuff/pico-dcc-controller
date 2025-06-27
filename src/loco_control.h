@@ -6,6 +6,8 @@
 #include <DCCEXLoco.h>
 #include "pico/util/queue.h"
 
+class DisplayControls;
+
 class LocoControl: public ActionInterface, public std::enable_shared_from_this<LocoControl> {
   enum class SpeedActionFrom{
     NONE,
@@ -15,24 +17,30 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
   };
 
   enum class PotState { BELOW, MATCHED, ABOVE };
+  
+    // Private constructor to prevent instantiation from outside
+    // This ensures that the class can only be instantiated through the initInstance method
+    // and provides a single instance of LocoControl throughout the application.
+    // This is a common pattern for implementing the Singleton design pattern in C++.
+    explicit LocoControl(const LocoControl&) = delete;
+    LocoControl& operator=(const LocoControl&) = delete;
+    LocoControl();
 
   public:
-    LocoControl(uint8_t button_index):
-    button_index(button_index), loco(nullptr), speed(0), speedActionFrom(SpeedActionFrom::NONE), potState(PotState::MATCHED), potReady(false) {
-      queue_init(&speed_update_queue, sizeof(uint8_t), 1);
-    };
 
     virtual ~LocoControl(){
     };
 
-    // static std::shared_ptr<LocoControl> initInstance(){
-    //   instance = std::shared_ptr<LocoControl>(new LocoControl());
-    //   return instance;
-    // }
+    static std::shared_ptr<LocoControl> initInstance(){
+      instance = std::shared_ptr<LocoControl>(new LocoControl());
+      return instance;
+    }
 
-    // static std::shared_ptr<LocoControl> getInstance(){
-    //   return LocoControl::instance;
-    // }
+    static std::shared_ptr<LocoControl> getInstance(){
+      return LocoControl::instance;
+    }
+
+    void init(std::shared_ptr<DisplayControls> displayControls);
 
     bool doAction() override;
     bool doLongPressAction() override;
@@ -43,15 +51,7 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
     void doButtonAction(uint8_t action, uint8_t value)override;
     void loop() override;
     
-    void setLoco(DCCExController::Loco *loco) {
-      this->loco = loco;
-      if (loco != nullptr) {
-        printf("LocoControl: setLoco: %d\n", loco->getAddress());
-      } else {
-        printf("LocoControl: setLoco: nullptr\n");
-      }
-      
-    }
+    void setLoco(DCCExController::Loco *loco) ;
     
     DCCExController::Loco *getLoco() {
       return loco;
@@ -68,8 +68,8 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
     void change_direction(bool forward);
     void setSpeedLED(uint8_t set_speed);
 
-    // static std::shared_ptr<LocoControl> instance;
-    int button_index{0};
+    static std::shared_ptr<LocoControl> instance;
+    // int button_index{0};
     bool isActive{false};
     DCCExController::Loco *loco;
 

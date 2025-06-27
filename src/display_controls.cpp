@@ -203,9 +203,16 @@ uint32_t DisplayControls::getDisplaySleepMicros() {
 void DisplayControls::rotateAction(uint8_t action) {
   switch (action) {
     case ROTARY_LEFT:
+      // currentMenu->muiEvent(mui_event(mui_event_t::moveDown));
+      for(auto interface: actionInterfaces){
+        interface->doMoveLeftAction();
+      }
       break;
     case ROTARY_RIGHT:
-      currentMenu->muiEvent(mui_event(mui_event_t::moveUp));
+      // currentMenu->muiEvent(mui_event(mui_event_t::moveUp));
+      for(auto interface: actionInterfaces){
+        interface->doMoveRightAction();
+      }
       break;
   }
   redrawDisplay = true;
@@ -213,16 +220,27 @@ void DisplayControls::rotateAction(uint8_t action) {
 
 void DisplayControls::keyAction(uint8_t action) {
   currentMenu->doKeyAction(action);
+  for(auto interface: actionInterfaces){
+    interface->doKeyAction(action);
+  }
+
   redrawDisplay = true;
 }
 
 void DisplayControls::potAction(uint16_t value) {
   currentMenu->doPotAction(value);
+  for(auto interface: actionInterfaces){
+    interface->doPotAction(value);
+  }
   redrawDisplay = true;
 }
 
 void DisplayControls::buttonAction(uint8_t action, uint8_t value) {
   currentMenu->doButtonAction(action, value);
+    for(auto interface: actionInterfaces){
+    interface->doButtonAction(action, value);
+  }
+
   redrawDisplay = true;
 }
 

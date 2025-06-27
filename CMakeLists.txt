@@ -95,18 +95,20 @@ target_link_libraries(pico-dcc-controller
         hardware_adc
         # hardware_interp
         hardware_timer
-        # hardware_watchdog
+        hardware_watchdog
         # hardware_clocks
         pico_multicore
         pico_cyw43_arch_lwip_poll
+        pico_lwip_mdns
        
         Versatile_RotaryEncoder
         u8g2
         MuiPlusPlus
         DCCEXProtocol
-        pico_lwip_mdns
         sensor_PCF8575
         )
 
 pico_add_extra_outputs(pico-dcc-controller)
+
+
 

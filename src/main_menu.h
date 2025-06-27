@@ -25,6 +25,7 @@ class MainMenu : public MuiMenu, public std::enable_shared_from_this<MainMenu> {
     const char* label;
   };
  protected:
+ 
  menuItem selectedItem;
   std::vector<menuItem> menu = {
     {miv_ConnectToDCC, "Connect to DCC"}

@@ -233,14 +233,21 @@ void core1_entry() {
           // printf("Button %d pressed, sending input\n", button[button.input_source].c_str());
           input_type button_input = {
             .input_source = button.input_source,
-            .value = 1 // Button pressed
+            .value = BUTTON_PRESSED // Button pressed
           };
           queue_add_blocking(&input_queue, &button_input);
         } else if (button.button->getReleased()) {
           printf("Button %d %s released, sending input\n", static_cast<int>(button.input_source), inputButtonNames[static_cast<int>(button.input_source)].c_str());
           input_type button_input = {
             .input_source = button.input_source,
-            .value = 0 // Button released
+            .value = BUTTON_RELEASED // Button released
+          };
+          queue_add_blocking(&input_queue, &button_input);
+        } else if(button.button->isLongPressed()) {
+          printf("Button %d %s long pressed, sending input\n", static_cast<int>(button.input_source), inputButtonNames[static_cast<int>(button.input_source)].c_str());
+          input_type button_input = {
+            .input_source = button.input_source,
+            .value = BUTTON_LONG_PRESS // Long press
           };
           queue_add_blocking(&input_queue, &button_input);
         }

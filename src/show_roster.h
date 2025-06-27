@@ -46,6 +46,8 @@ class ShowRosterMenu : public MuiMenu, public std::enable_shared_from_this<ShowR
   void clearAction() override;
   std::string getName() override  { return "ShowRoster"; };
   void doButtonAction(uint8_t action, uint8_t value) override;
+  bool doKeyAction(int8_t action) override;
+
   void getLocoIndexNames();
 
   void showButtonLED(int menuIndex);

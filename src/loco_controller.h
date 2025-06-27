@@ -7,26 +7,31 @@
 #include <DCCEXLoco.h>
 #include "loco_control.h"
 
+class DisplayControls;
 
 class LocoController: public ActionInterface, public std::enable_shared_from_this<LocoController> {
   private:
-    std::vector<std::shared_ptr<LocoControl>> locos {nullptr,nullptr,nullptr,nullptr};  // Vector to hold loco indices
+    std::vector<DCCExController::Loco* > locos {nullptr,nullptr,nullptr,nullptr};  // Vector to hold loco indices
     uint8_t current_loco_index;
     static std::shared_ptr<LocoController> instance;
+    std::shared_ptr<LocoControl> locoControl;
 
-    LocoController() : current_loco_index(0xff) {
-      // Initialize locos with nullptr
-      for (int i = 0; i < locos.size(); ++i) {
-        locos[i] = std::make_shared<LocoControl>(i);
-      }
-    };
+    protected:
+    // Private constructor to prevent instantiation from outside
+    // This ensures that the class can only be instantiated through the initInstance method
+    // and provides a single instance of LocoController throughout the application.   
+    LocoController();
+    LocoController(const LocoController&) = delete;
+    LocoController& operator=(const LocoController&) = delete;
+    explicit LocoController(std::shared_ptr<DisplayControls> displayControls);
+
   public:
     virtual ~LocoController() {};
 
-    static std::shared_ptr<LocoController> initInstance(){
-      instance = std::shared_ptr<LocoController>(new LocoController());
-      return instance;
-    }
+    static std::shared_ptr<LocoController> initInstance(std::shared_ptr<DisplayControls> displayControls);
+
+    void init(std::shared_ptr<DisplayControls> displayControls);
+     
 
     static std::shared_ptr<LocoController> getInstance(){
       return LocoController::instance;
@@ -43,6 +48,9 @@ class LocoController: public ActionInterface, public std::enable_shared_from_thi
 
     void setLoco(uint8_t index, DCCExController::Loco *loco);
     DCCExController::Loco *getLoco(uint8_t index);
+    void clearLoco(DCCExController::Loco *loco);
+
+    void driveLoco(DCCExController::Loco *loco);
 
     uint8_t getLocoButtonIndex(DCCExController::Loco *loco);
 };
