@@ -2,6 +2,7 @@
 #include <chrono>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/i2c.h"
 #include "hardware/watchdog.h" // Add this include
 
 #include "defines.h"
@@ -14,10 +15,19 @@
 #include "mdns_scan.h"
 
 
+
 // #define _WATCHDOG_
 
 int main() {
   stdio_init_all();
+
+  i2c_init(I2C_PORT, 400 * 1000);
+
+  gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+  gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+  gpio_pull_up(I2C_SDA);
+  gpio_pull_up(I2C_SCL);
+
 
   // Initialize watchdog: timeout 4 seconds, pause on debug
 
@@ -52,7 +62,9 @@ int main() {
     cyw43_arch_poll();
     displayControls->loop();
     wifiControl->loop();
-    locoController->loop();
+    if(wifiControl->dccProtocol() != nullptr) {
+      locoController->loop();
+    }
 #ifdef _WATCHDOG_  
     watchdog_update(); // Pet the watchdog in main loop
 #endif    

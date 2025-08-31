@@ -6,6 +6,7 @@
 #include "action_interface.h"
 #include <DCCEXLoco.h>
 #include "loco_control.h"
+#include "storage_at24cx.h"
 
 class DisplayControls;
 
@@ -15,6 +16,8 @@ class LocoController: public ActionInterface, public std::enable_shared_from_thi
     uint8_t current_loco_index;
     static std::shared_ptr<LocoController> instance;
     std::shared_ptr<LocoControl> locoControl;
+    std::shared_ptr<StorageAT24Cx> storage;
+    std::shared_ptr<DisplayControls> displayControls;
 
     protected:
     // Private constructor to prevent instantiation from outside
@@ -50,6 +53,7 @@ class LocoController: public ActionInterface, public std::enable_shared_from_thi
     DCCExController::Loco *getLoco(uint8_t index);
     void clearLoco(DCCExController::Loco *loco);
 
+    void driveLocoLED(uint8_t loco_led_index);
     void driveLoco(DCCExController::Loco *loco);
 
     uint8_t getLocoButtonIndex(DCCExController::Loco *loco);

@@ -9,6 +9,7 @@
 
 #include "mui_menu.h"
 #include "dcc_connection_entry.h"
+#include "show_roster.h"
 
 /*
     this class controls our buttons and
@@ -139,7 +140,20 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   void addActionInterface(std::shared_ptr<ActionInterface> actionInterface) {
     actionInterfaces.push_back(actionInterface);
   }
+
+  bool isOnRosterMenu() {
+    return currentMenu && currentMenu->getName() == "ShowRoster";
+  } 
+
+  void addLocoToCabControlMenu(DCCExController::Loco *loco) ;
   
+  std::string getMenuName() {
+    if (currentMenu) {
+      return currentMenu->getName();
+    }
+    return "";
+  }
+
 };
 
 #endif

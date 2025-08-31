@@ -17,6 +17,7 @@ std::shared_ptr<LocoControl> LocoControl::instance;
 
 void LocoControl::init(std::shared_ptr<DisplayControls> displayControls) {
     displayControls->addActionInterface(shared_from_this());
+    this->displayControls = displayControls;
 }
 
 void LocoControl::setLoco(DCCExController::Loco *loco) {
@@ -108,6 +109,10 @@ bool LocoControl::doMoveLeftAction() { return false; }
 bool LocoControl::doMoveRightAction() { return false; }
 
 bool LocoControl::doKeyAction(int8_t action) {
+  if(displayControls->isOnRosterMenu()) {
+    return false; // Ignore key actions in roster menu
+  }
+
   if (action >= '0' && action <= '9') {
     // Map '0'..'9' to speed 0..126 equally
     speed = ((action - '0') * MAX_LOCO_SPEED + 4) / 9;  // +4 for rounding
@@ -129,6 +134,10 @@ bool LocoControl::doKeyAction(int8_t action) {
 }
 
 void LocoControl::doPotAction(uint16_t value) {
+    if(displayControls->isOnRosterMenu()) {
+    return; // Ignore key actions in roster menu
+  }
+
   // Ignore pot input until it reaches 0 after startup
   if (!potReady) {
     if (value == 0) {
@@ -172,6 +181,10 @@ void LocoControl::doPotAction(uint16_t value) {
 }
 
 void LocoControl::doButtonAction(uint8_t action, uint8_t value) {
+    if(displayControls->isOnRosterMenu()) {
+    return; // Ignore key actions in roster menu
+  }
+
   if (action == INPUT_BUTTON_REVERSE) {
     if (value == 1) {
       change_direction(loco->getDirection() == DCCExController::Reverse);
@@ -182,10 +195,15 @@ void LocoControl::doButtonAction(uint8_t action, uint8_t value) {
 void LocoControl::loop() {
   uint8_t speed_update;
   while (queue_try_remove(&speed_update_queue, &speed_update)) {
-    loco->setSpeed(speed_update);
-    WifiControl::getInstance()->dccProtocol()->setThrottle(
-        loco, loco->getSpeed(), loco->getDirection());
-    printf("Sent speed update via WiFi: %d\n", loco->getSpeed());
+    if(WifiControl::getInstance()->dccProtocol() == nullptr) {
+      printf("DCCEXProtocol not initialized, skipping speed update\n");
+    
+    }else{
+      loco->setSpeed(speed_update);
+      WifiControl::getInstance()->dccProtocol()->setThrottle(
+          loco, loco->getSpeed(), loco->getDirection());
+      printf("Sent speed update via WiFi: %d\n", loco->getSpeed());
+    }
   }
 }
 

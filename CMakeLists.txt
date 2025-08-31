@@ -106,6 +106,7 @@ target_link_libraries(pico-dcc-controller
         MuiPlusPlus
         DCCEXProtocol
         sensor_PCF8575
+        sensor_AT24Cx
         )
 
 pico_add_extra_outputs(pico-dcc-controller)

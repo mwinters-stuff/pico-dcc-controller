@@ -91,7 +91,6 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
 
 void CabControlMenu::setLoco(DCCExController::Loco *loco) {
   this->loco = loco;
-  LocoController::getInstance()->driveLoco(loco);
   if (loco != nullptr) {
     printf("CabControlMenu: setLoco: %d\n", loco->getAddress());
   } else {

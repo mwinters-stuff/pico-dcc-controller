@@ -52,6 +52,7 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
     void loop() override;
     
     void setLoco(DCCExController::Loco *loco) ;
+    void setSpeedLED(uint8_t set_speed);
     
     DCCExController::Loco *getLoco() {
       return loco;
@@ -66,7 +67,6 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
 
     void change_speed(bool increase);
     void change_direction(bool forward);
-    void setSpeedLED(uint8_t set_speed);
 
     static std::shared_ptr<LocoControl> instance;
     // int button_index{0};
@@ -79,6 +79,8 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
     SpeedActionFrom speedActionFrom{SpeedActionFrom::NONE};
     PotState potState = PotState::MATCHED;
     bool potReady = false;
+
+    std::shared_ptr<DisplayControls> displayControls;
 
 
     void setSpeedWithDelay(uint8_t set_speed);

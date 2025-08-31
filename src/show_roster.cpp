@@ -153,6 +153,7 @@ bool ShowRosterMenu::doAction(){
       auto menu = std::make_shared<CabControlMenu>(displayControls);
       
       menu->setLoco(selectedItem->loco);
+      LocoController::getInstance()->driveLoco(selectedItem->loco);  // Set loco at index 0
       menu->showMenu();
       break;
   }

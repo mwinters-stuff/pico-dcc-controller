@@ -107,7 +107,10 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "cfenv": "cpp",
-        "mdns_opts.h": "c"
+        "mdns_opts.h": "c",
+        "any": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp"
     },
     "github.copilot.enable": {
         "*": true,
