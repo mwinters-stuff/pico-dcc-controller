@@ -49,9 +49,9 @@ void ShowRosterMenu::getLocoIndexNames() {
     if (loco != nullptr) {
       uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);
       if (buttonIndex != 0xff) {
-        snprintf(menu.at(i).label, NAME_MAX_LENGTH, "%d: %s", buttonIndex, loco->getName());
+        snprintf(menu.at(i).label, NAME_MAX_LENGTH, "%d: %s", buttonIndex + 1, loco->getName());
       } else {
-        snprintf(menu.at(i).label, NAME_MAX_LENGTH, " : %s", loco->getName());
+        snprintf(menu.at(i).label, NAME_MAX_LENGTH, "%s", loco->getName());
       }
     }
   }
@@ -185,6 +185,7 @@ bool ShowRosterMenu::doKeyAction(int8_t action) {
       LocoController::getInstance()->setLoco(locoIndex, loco);
       // Show the button LED for the selected loco
       showButtonLED(highlightIndex);
+      showMenu(); // Refresh the menu to show updated button indices
     }
   }
   return true;

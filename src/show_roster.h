@@ -12,7 +12,7 @@
 
 class DisplayControls;
 
-#define NAME_MAX_LENGTH 20
+#define NAME_MAX_LENGTH 30
 
 
 

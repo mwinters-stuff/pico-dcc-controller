@@ -159,13 +159,13 @@ void core1_entry() {
     if (direction == Versatile_RotaryEncoder::left) {
       input_type rotary_input = {
         .input_source = INPUT_ROTARY,
-        .value = ROTARY_LEFT
+        .value = ROTARY_RIGHT
       };
       queue_add_blocking(&input_queue, &rotary_input);
     } else if (direction == Versatile_RotaryEncoder::right) {
       input_type rotary_input = {
         .input_source = INPUT_ROTARY,
-        .value = ROTARY_RIGHT
+        .value = ROTARY_LEFT
       };
       queue_add_blocking(&input_queue, &rotary_input);
     }
@@ -194,6 +194,8 @@ void core1_entry() {
 
   });
 
+  uint32_t last_pot_check = 0; // Add this before the while loop
+
   while (true) {
     process_led_queue(pcf8575);
     encoder.ReadEncoder();
@@ -206,23 +208,30 @@ void core1_entry() {
       };
       queue_add_blocking(&input_queue, &keypad_input);
     }
-    int pot_value = pot_reader.readValue();
-    if (pot_value >= 0) {
-      // Scale pot_value (0-4095) to speed (0-MAX_LOCO_SPEED)
-      int speed = pot_value;
-      if(speed == 1) {
-        speed = 0; // Treat 1 as stop
-      }
-      if (last_speed_value + 1 < speed || last_speed_value - 1 > speed ) {
-        // Only send input if the speed value has changed significantly
-        last_speed_value = speed;
 
-        printf("Potentiometer value: %d, Speed: %d\n", pot_value, speed);
-        input_type pot_input = {
-          .input_source = INPUT_POT,
-          .value = static_cast<uint8_t>(speed)
-        };
-        queue_add_blocking(&input_queue, &pot_input);
+    // Only run potentiometer section every 100ms
+    uint32_t now = to_ms_since_boot(get_absolute_time());
+    if (now - last_pot_check >= 100) {
+      last_pot_check = now;
+
+      int pot_value = pot_reader.readValue();
+      if (pot_value >= 0) {
+        // Scale pot_value (0-4095) to speed (0-MAX_LOCO_SPEED)
+        int speed = pot_value;
+        if(speed == 1) {
+          speed = 0; // Treat 1 as stop
+        }
+        if (last_speed_value + 1 < speed || last_speed_value - 1 > speed ) {
+          // Only send input if the speed value has changed significantly
+          last_speed_value = speed;
+
+          printf("Potentiometer value: %d, Speed: %d\n", pot_value, speed);
+          input_type pot_input = {
+            .input_source = INPUT_POT,
+            .value = static_cast<uint8_t>(speed)
+          };
+          queue_add_blocking(&input_queue, &pot_input);
+        }
       }
     }
 
@@ -230,7 +239,6 @@ void core1_entry() {
       if (button.button->update()) {
         if (button.button->getPressed()) {
           printf("Button %d %s pressed, sending input\n", static_cast<int>(button.input_source), inputButtonNames[static_cast<int>(button.input_source)].c_str());
-          // printf("Button %d pressed, sending input\n", button[button.input_source].c_str());
           input_type button_input = {
             .input_source = button.input_source,
             .value = BUTTON_PRESSED // Button pressed
@@ -254,10 +262,7 @@ void core1_entry() {
       }
     }
 
-  
-
     process_led_queue(pcf8575);
-   
     sleep_ms(1);
   }
 }

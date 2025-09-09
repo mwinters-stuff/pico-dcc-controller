@@ -54,7 +54,7 @@ void LocoControl::setSpeedWithDelay(uint8_t set_speed) {
   pending_speed = set_speed;
   setSpeedLED(set_speed);
   // Set a new alarm for 100ms
-  speed_alarm_id = add_alarm_in_ms(200, set_speed_callback, this, false);
+  speed_alarm_id = add_alarm_in_ms(50, set_speed_callback, this, false);
 }
 
 void LocoControl::setSpeedLED(uint8_t set_speed) {

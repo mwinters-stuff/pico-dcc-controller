@@ -49,6 +49,8 @@ class LocoController: public ActionInterface, public std::enable_shared_from_thi
     void doButtonAction(uint8_t action, uint8_t value) override;
     void loop() override;
 
+    void loadLocosFromStorage();
+
     void setLoco(uint8_t index, DCCExController::Loco *loco);
     DCCExController::Loco *getLoco(uint8_t index);
     void clearLoco(DCCExController::Loco *loco);

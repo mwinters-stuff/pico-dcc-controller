@@ -2,6 +2,7 @@
 #include <pico/time.h>
 
 #include <stdio.h>
+#include "loco_controller.h"
 
 void DCCEXProtocolDelegateImpl::receivedServerVersion(int major, int minor,
                                                       int patch) {
@@ -14,6 +15,7 @@ void DCCEXProtocolDelegateImpl::receivedMessage(char *message) {
 
 void DCCEXProtocolDelegateImpl::receivedRosterList() {
   printf("Roster list received.\n");
+  LocoController::getInstance()->loadLocosFromStorage();
 }
 
 void DCCEXProtocolDelegateImpl::receivedTurnoutList() {

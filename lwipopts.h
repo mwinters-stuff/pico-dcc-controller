@@ -94,7 +94,7 @@
 #define LWIP_NUM_NETIF_CLIENT_DATA 4
 #define MEMP_NUM_SYS_TIMEOUT 16  // or higher, e.g., 32 or 64
 
-#define MDNS_DEBUG LWIP_DBG_ON
-#define DNS_DEBUG LWIP_DBG_ON
+// #define MDNS_DEBUG LWIP_DBG_ON
+// #define DNS_DEBUG LWIP_DBG_ON
 
 #endif /* __LWIPOPTS_H__ */

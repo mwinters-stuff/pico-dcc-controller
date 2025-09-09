@@ -58,6 +58,10 @@ void LocoController::loop() {
   locoControl->loop();
 }
 
+void LocoController::loadLocosFromStorage() {
+  storage->readLocoButton(locos);
+}
+
 void LocoController::setLoco(uint8_t index, DCCExController::Loco *loco) {
   clearLoco(loco);  // Clear previous loco
 
