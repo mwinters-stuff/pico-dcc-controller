@@ -194,13 +194,14 @@ bool ShowRosterMenu::doKeyAction(int8_t action) {
 void ShowRosterMenu::showButtonLED(int menuIndex){
   // Show button LED for the selected loco
   turn_off_loco_leds(); // Turn off all LEDs first
-  auto loco = menu.at(menuIndex).loco;
-  uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);  
-  if (buttonIndex != 0xff) {
-    printf("Showing LED for button %d\n", buttonIndex);
-    queue_led_command(get_loco_led_from_input(buttonIndex), true);
-  } else {
-    printf("No button assigned for this loco\n");
+  if (menuIndex < 4 && menuIndex < menu.size() - 1) {
+    auto loco = menu.at(menuIndex).loco;
+    uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);  
+    if (buttonIndex != 0xff) {
+      printf("Showing LED for button %d\n", buttonIndex);
+      queue_led_command(get_loco_led_from_input(buttonIndex), true);
+    } else {
+      printf("No button assigned for this loco\n");
+    }
   }
-
 }

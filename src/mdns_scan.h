@@ -11,6 +11,8 @@
 #include "dcc_menu.h"
 #include "dcc_connection_entry.h"
 
+class DisplayControls;
+
 class MDNSScan : public std::enable_shared_from_this<MDNSScan> {
  protected:
 
@@ -18,18 +20,19 @@ class MDNSScan : public std::enable_shared_from_this<MDNSScan> {
   uint8_t mdns_request_id;
   std::unique_ptr<DCCConnectionEntry> mdns_search_result;
    static std::shared_ptr<MDNSScan> instance;
+   std::shared_ptr<DisplayControls> displayControls;
 
   void discoverMDNSWithrottle();
   void checkAddHost();
-  MDNSScan();
+  MDNSScan(std::shared_ptr<DisplayControls> displayControls);
   MDNSScan(const MDNSScan&) = delete; // Disable copy constructor
   MDNSScan& operator=(const MDNSScan&) = delete; // Disable assignment operator
  public:
   virtual ~MDNSScan();
   void parseDCCEXAddresses(const std::string &input);
 
-  static std::shared_ptr<MDNSScan> initInstance(){
-      instance = std::shared_ptr<MDNSScan>(new MDNSScan());
+  static std::shared_ptr<MDNSScan> initInstance(std::shared_ptr<DisplayControls> displayControls){
+      instance = std::shared_ptr<MDNSScan>(new MDNSScan(displayControls));
       return instance;
     }
 

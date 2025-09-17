@@ -8,14 +8,14 @@
 #include "pico/util/queue.h"
 
 class CabControlMenu: public MuiMenu, public std::enable_shared_from_this<CabControlMenu> {
-  enum class SpeedActionFrom{
-    NONE,
-    ROTARY,
-    KEYBOARD,
-    POT,
-  };
+  // enum class SpeedActionFrom{
+  //   NONE,
+  //   ROTARY,
+  //   KEYBOARD,
+  //   POT,
+  // };
 
-  enum class PotState { BELOW, MATCHED, ABOVE };
+  // enum class PotState { BELOW, MATCHED, ABOVE };
 
   public:
     CabControlMenu(std::shared_ptr<DisplayControls> displayControls): MuiMenu(displayControls) {

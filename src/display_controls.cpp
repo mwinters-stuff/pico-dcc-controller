@@ -15,6 +15,7 @@
 #include "show_turnouts.h"
 #include "dcc_menu.h"
 #include "cab_control_menu.h"
+#include "functions_menu.h"
 
 #define MAIN_MENU_FONT u8g2_font_bauhaus2015_tr
 #define SMALL_TEXT_FONT u8g2_font_glasstown_nbp_t_all
@@ -54,6 +55,13 @@ void DisplayControls::exitMenu() {
   endCurrentScreen = true;
 }
 
+void DisplayControls::wakeUpDisplay() {
+  if (is_display_sleeping) {
+    is_display_sleeping = false;
+    SetPowerSave(false);
+  }
+}
+
 void DisplayControls::loop() {
   drawScreen();
   if(currentMenu) {
@@ -64,13 +72,9 @@ void DisplayControls::loop() {
   if (getFromQueue(input_value)) {
     // Update last activity time
     last_activity_time = get_absolute_time();
+    wakeUpDisplay();
 
-    // Wake up the display if it is sleeping
-    if (is_display_sleeping) {
-      printf("Waking up the display\n");
-      SetPowerSave(false);
-      is_display_sleeping = false;
-    }
+
     if (input_value.input_source == INPUT_ROTARY) {
       rotateAction(input_value.value);
       switch (input_value.value) {
@@ -163,6 +167,9 @@ void DisplayControls::loop() {
         case MenuList::CAB_CONTROL:
           currentMenu = std::make_shared<CabControlMenu>(shared_from_this());
           break;
+        case MenuList::FUNCTIONS_MENU:
+          currentMenu = std::make_shared<FunctionsMenu>(shared_from_this());
+          break;          
         default:
           printf("EndCurrentScreen Unknown menu\n");
           break;
@@ -264,6 +271,7 @@ void DisplayControls::setRedraw() {
 void DisplayControls::SetPowerSave(bool on) { u8g2_SetPowerSave(&u8g2, on); }
 
 void DisplayControls::showBasicMiddleLine(const char* midLine) {
+  wakeUpDisplay();
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetFont(&u8g2, MAIN_MENU_FONT);
   u8g2_DrawStr(
@@ -273,8 +281,9 @@ void DisplayControls::showBasicMiddleLine(const char* midLine) {
   u8g2_SendBuffer(&u8g2);
 }
 
-void DisplayControls::showBasicTwoLine(const char* topLine,
-                                       const char* bottomLine) {
+void DisplayControls::showBasicTwoLine(const char* topLine, const char* bottomLine) {
+                                        
+  wakeUpDisplay();
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetFont(&u8g2, MAIN_MENU_FONT);
 
@@ -303,6 +312,8 @@ void DisplayControls::showBasicTwoLine(const char* topLine,
 void DisplayControls::showBasicThreeLines(const char* firstLine,
                                           const char* secondLine,
                                           const char* thirdLine) {
+  
+  wakeUpDisplay();
   u8g2_ClearBuffer(&u8g2);
   u8g2_SetFont(&u8g2, MAIN_MENU_FONT);
 
@@ -356,9 +367,29 @@ void DisplayControls::showConnectTo(const char* name) {
   showBasicTwoLine("Connecting To:", name);
 }
 
-  void  DisplayControls::addLocoToCabControlMenu(DCCExController::Loco *loco) {
-    if (currentMenu && currentMenu->getName() == "CabControlMenu") {
-        CabControlMenu* cabControlMenu = (CabControlMenu*)currentMenu.get();
-        cabControlMenu->setLoco(loco);
+void DisplayControls::showConnectionFailed(){
+  showBasicMiddleLine("Connection Failed");
+  sleep_ms(5000);
+  
+}
+
+void  DisplayControls::addLocoToCabControlMenu(DCCExController::Loco *loco) {
+  if (currentMenu && currentMenu->getName() == "CabControlMenu") {
+      CabControlMenu* cabControlMenu = (CabControlMenu*)currentMenu.get();
+      cabControlMenu->setLoco(loco);
+  }
+}
+
+void DisplayControls::showDCCConnectionMenu(){
+  if(currentMenu && currentMenu->getName() != "DCCConnection"){
+    exitMenu();
+    currentMenu = std::make_shared<DCCConnectionMenu>(shared_from_this());
+    if (currentMenu) {
+      printf("showDCCConnectionMenu Entering menu: %s\n", currentMenu->getName().c_str());
+      currentMenu->showMenu();
+      redrawDisplay = true;
+    } else {
+      printf("showDCCConnectionMenu Menu not found\n");
     }
   }
+}

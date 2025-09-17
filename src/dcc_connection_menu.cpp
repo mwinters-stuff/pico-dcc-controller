@@ -34,7 +34,6 @@ void DCCConnectionMenu::showMenu() {
 void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
   // create root page
   auto mdnsScan = MDNSScan::getInstance();
-  auto addresses = mdnsScan->getAddresses();
   selectedIndex = -1;
   muiItemId root_page =
       makePage("DCC Connect");  // provide a label for the page
@@ -50,16 +49,17 @@ void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
   auto list = new MuiItem_U8g2_DynamicScrollList(
       u8g2,            // U8g2 object to draw to
       scroll_list_id,  // ID for the item
-      [this,addresses](size_t index) {
+      [this, mdnsScan](size_t index) {
+        auto addresses = mdnsScan->getAddresses();
         auto item = addresses.at(index);
         str = item.name;
         return str.c_str();
       },
       // next callback is called by DynamicScrollList to find out the size
       // (total number) of elements in a list
-      [addresses]() { return addresses.size(); },
-      [this,addresses](size_t index) {
-        printf("Selected: %s\n", addresses.at(index).name.c_str());
+      [mdnsScan]() { return mdnsScan->getAddresses().size(); },
+      [this,mdnsScan](size_t index) {
+        printf("Selected: %s\n", mdnsScan->getAddresses().at(index).name.c_str());
         selectedIndex = index;
       },
       MAIN_MENU_Y_SHIFT,

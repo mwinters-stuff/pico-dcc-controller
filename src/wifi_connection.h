@@ -2,28 +2,49 @@
 #define _WIFI_CONNECTION_H
 
 #include <lwip/tcp.h>
+#include <lwip/priv/tcp_priv.h>
+#include "pico/util/queue.h"
 #include <cstring>
 #include <DCCStream.h>
 #include <stdarg.h>
+#include <pico/time.h> // For get_absolute_time(), to_ms_since_boot()
+
+extern queue_t tcp_fail_queue;
 
 class TCPSocketStream : public DCCExController::DCCStream {
 private:
     struct tcp_pcb *pcb;
     struct pbuf *recv_buffer;
+    bool failed = false;
+    err_t err;
+
+    // Heartbeat tracking
+    absolute_time_t heartbeat_sent_time = nil_time;
+    bool awaiting_heartbeat = false;
+
 
     static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
         TCPSocketStream *stream = static_cast<TCPSocketStream*>(arg);
         if (p == nullptr) {
             // Connection closed
+            printf("Connection closed by remote host\n");
             tcp_close(tpcb);
             stream->pcb = nullptr;
-            return ERR_OK;
+            pbuf_free(p);
+            stream->failed = true;
+            stream->err = err;
+            queue_try_add(&tcp_fail_queue, &stream->err); // Notify main core of TCP failure
+            return ERR_ABRT;
         }
         if (err == ERR_OK) {
             if (stream->recv_buffer == nullptr) {
                 stream->recv_buffer = p;
             } else {
                 pbuf_chain(stream->recv_buffer, p); // Safely chain the new buffer
+            }
+            uint8_t *data = (uint8_t*)p->payload;
+            if (stream->awaiting_heartbeat && data[0] == '<') {
+                stream->awaiting_heartbeat = false;
             }
         } else {
             pbuf_free(p);
@@ -35,6 +56,13 @@ public:
     explicit TCPSocketStream(struct tcp_pcb *pcb) : pcb(pcb), recv_buffer(nullptr) {
         tcp_recv(pcb, recv_callback);
         tcp_arg(pcb, this);
+
+        // Enable keepalive
+        pcb->keep_idle = 5000;     // ms
+        pcb->keep_intvl = 1000;    // ms
+        pcb->keep_cnt = 5;
+        pcb->so_options |= SOF_KEEPALIVE;
+        tcp_keepalive(pcb); // idle, interval, count (values in ms)
     }
 
     // Check if data is available to read
@@ -64,12 +92,18 @@ public:
 
     // Write a buffer to the socket
     size_t write(const uint8_t *buffer, size_t size) {
+        if(failed) {
+            return -1; // Already failed
+        }
         err_t err = tcp_write(pcb, buffer, size, TCP_WRITE_FLAG_COPY);
         if (err == ERR_OK) {
             tcp_output(pcb);
             return size;
         }
-        return 0; // Error
+        printf("Error writing to TCP socket: %d\n", err);
+        failed = true;
+        queue_try_add(&tcp_fail_queue, &err); // Notify main core of TCP failure
+        return err; // Error
     }
 
     // No-op for sockets (no explicit flushing needed)
@@ -93,6 +127,10 @@ public:
 
         write(reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
         write(reinterpret_cast<const uint8_t*>("\n"), 1);
+
+        if(strcmp(format, "<#>") == 0) {
+            notifyHeartbeatSent();
+        }
     }
 
     // Send a string
@@ -112,6 +150,29 @@ public:
 
 
         write(reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
+    }
+
+    // Call this externally when <#> is sent
+    void notifyHeartbeatSent() {
+        heartbeat_sent_time = get_absolute_time();
+        awaiting_heartbeat = true;
+    }
+
+    // Call this periodically (e.g. in your main loop)
+    void checkHeartbeatTimeout() {
+        if (awaiting_heartbeat) {
+            uint32_t elapsed = absolute_time_diff_us(get_absolute_time() , heartbeat_sent_time) / 1000; // Convert to ms
+            if (elapsed > 2000) { // 2 seconds
+                printf("Heartbeat timeout\n");
+                err_t timeout_err = ERR_TIMEOUT;
+                queue_try_add(&tcp_fail_queue, &timeout_err);
+                awaiting_heartbeat = false;
+            }
+        }
+    }
+
+    bool isFailed(){
+        return failed;
     }
 
     // Destructor to close the socket

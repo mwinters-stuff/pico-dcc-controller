@@ -18,6 +18,7 @@ enum class MenuList {
   SHOW_TURNOUTS,
   DCC_MENU,
   CAB_CONTROL,
+  FUNCTIONS_MENU
 };
 
 class MuiMenu : public MuiPlusPlus, public ActionInterface {

@@ -56,6 +56,34 @@ public:
   void render(const MuiItem* parent) override;
 };
 
+class Custom_U8g2_ValuesList : public Item_U8g2_Generic, public MuiItem {
+  // callbacks
+  string_cb_t _getCurrent;
+  // cursor x position for value 
+  u8g2_uint_t _xval;
+  // value horizontal alignment
+  text_align_t _val_halign;
 
+public:
+
+  Custom_U8g2_ValuesList(
+    u8g2_t &u8g2,
+    muiItemId id,
+    const char* label,
+    string_cb_t getCurrent,
+    u8g2_uint_t xlbl, u8g2_uint_t xval,
+    u8g2_uint_t y,
+    const uint8_t* font = nullptr,
+    text_align_t lbl = text_align_t::left,
+    text_align_t val_halign = text_align_t::left,
+    text_align_t valign = text_align_t::baseline
+  ) : Item_U8g2_Generic(u8g2, font, xlbl, y, lbl, valign),
+      MuiItem(id, label, {false,true}), _getCurrent(getCurrent), _xval(xval), _val_halign(val_halign) {}
+
+  // render method
+  void render(const MuiItem* parent) override;
+  // event handler
+  mui_event muiEvent(mui_event e) override;
+};
 
 #endif

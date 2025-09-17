@@ -7,11 +7,13 @@
 #include "display_controls.h"
 #include "pico/cyw43_arch.h"
 #include "lwip/apps/mdns.h"
+#include "pico/util/queue.h"
 #include "wifi_connection.h"
 #include <DCCEXProtocol.h>
 
 // Define the static instance variable
 std::shared_ptr<WifiControl> WifiControl::instance = nullptr;
+extern queue_t tcp_fail_queue;
 
 
 WifiControl::WifiControl(std::shared_ptr<DisplayControls> displayControls)
@@ -127,7 +129,7 @@ bool WifiControl::connectToServer(const char *server_ip, uint16_t port) {
     // Poll for connection status with a 20 second timeout
     printf("Connecting to server...\n");
     isConnected = false;
-    const uint32_t timeout_ms = 20000;
+    const uint32_t timeout_ms = 10000;
     uint32_t start_time = to_ms_since_boot(get_absolute_time());
     while (!isConnected) {
         cyw43_arch_poll();
@@ -175,4 +177,29 @@ void WifiControl::loop(){
     dccExProtocol->check();
     dccExProtocol->getLists(true, true, true, false);
   }
+
+  if(stream) {
+    stream->checkHeartbeatTimeout();
+  }
+
+  err_t err;
+  if(queue_try_remove(&tcp_fail_queue, &err)) {
+    failError(err);
+    isConnected = false;
+    if(dccExProtocol) {
+      dccExProtocol->disconnect();
+      dccExProtocol = nullptr;
+    }
+    if(stream) {
+      delete stream;
+      stream = nullptr;
+    }
+    if(logStream) {
+      delete logStream;
+      logStream = nullptr;
+    }
+    displayControls->showConnectionFailed();
+    displayControls->showDCCConnectionMenu();
+  }
+
 }

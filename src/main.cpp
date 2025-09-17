@@ -51,7 +51,7 @@ int main() {
 
   launchCore1();
 
-  auto mdnsScan = MDNSScan::initInstance();
+  auto mdnsScan = MDNSScan::initInstance(displayControls);
 
   auto mainMenu = std::make_shared<MainMenu>(displayControls);
   mainMenu->showMenu();

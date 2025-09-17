@@ -128,6 +128,11 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
   void showWifiConnected();
   void showDCCFailedConnection(const char* name);
   void showConnectTo(const char* name);
+  void showConnectionFailed();
+
+  void showDCCConnectionMenu();
+
+  void wakeUpDisplay();
 
   void setDCCConnectionEntry(DCCConnectionEntry entry) {
     dccConnectionEntry = entry;
@@ -143,6 +148,10 @@ class DisplayControls: public std::enable_shared_from_this<DisplayControls> {
 
   bool isOnRosterMenu() {
     return currentMenu && currentMenu->getName() == "ShowRoster";
+  } 
+
+  bool isOnCabControlMenu() {
+    return currentMenu && currentMenu->getName() == "CabControlMenu";
   } 
 
   void addLocoToCabControlMenu(DCCExController::Loco *loco) ;

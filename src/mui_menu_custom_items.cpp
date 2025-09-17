@@ -79,3 +79,59 @@ mui_event Custom_U8g2_DynamicScrollList::muiEvent(mui_event e){
 
   return {};
 }
+
+
+
+//  ***
+//  MuiItem_U8g2_ValuesList
+
+void Custom_U8g2_ValuesList::render(const MuiItem* parent){
+  if (_font)
+    u8g2_SetFont(&_u8g2, _font);
+
+  // draw label
+  auto a = getXoffset(name);
+  u8g2_DrawUTF8(&_u8g2, a, _y, name);
+
+  // value must be printed right after end of label
+  if (_x == _xval)
+    _xval = getX();
+
+  // draw button - https://github.com/olikraus/u8g2/wiki/u8g2reference#drawbuttonutf8
+  u8g2_uint_t flags = 0;
+  if (selected)
+    flags |= U8G2_BTN_INV;
+  else if (focused)
+    flags |= U8G2_BTN_BW1;
+
+  //if (_val_align == text_align_t::center)
+  //  flags |= U8G2_BTN_HCENTER;
+
+  // calc cursor's offset for value
+  const char* s = _getCurrent();
+  auto vxoff = getXoffset(_xval, _val_halign, v_align, s);
+  // draw button with frame or inversion
+  u8g2_DrawButtonUTF8(&_u8g2, vxoff, _y, flags, 0, 2, 2, s);
+}
+
+mui_event Custom_U8g2_ValuesList::muiEvent(mui_event e){
+  // switch(e.eid){
+  //   // cursor actions - decr value
+  //   case mui_event_t::moveUp :
+  //   case mui_event_t::moveLeft : 
+  //     _onPrev();
+  //     break;
+  //   // cursor actions - incr value
+  //   case mui_event_t::moveDown :
+  //   case mui_event_t::moveRight :
+  //     _onNext();
+  //     break;
+
+  //   // enter acts as escape to release selection
+  //   case mui_event_t::enter :
+  //     return mui_event(on_escape);
+  // }
+
+  // by default, return noop
+  return {};
+}

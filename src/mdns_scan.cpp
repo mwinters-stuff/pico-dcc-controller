@@ -19,10 +19,12 @@
 #include "pico/stdlib.h"
 #include "dcc_menu.h"
 #include "wifi_control.h"
+#include "display_controls.h"
 
 std::shared_ptr<MDNSScan> MDNSScan::instance = nullptr;
 
-MDNSScan::MDNSScan() {
+MDNSScan::MDNSScan(std::shared_ptr<DisplayControls> displayControls)
+    : displayControls(displayControls), mdns_request_id(0) {
   parseDCCEXAddresses(DCCEX_ADDRESSES);
   discoverMDNSWithrottle();
 }
@@ -170,5 +172,7 @@ void MDNSScan::checkAddHost() {
          mdns_search_result->port.c_str());
   mdns_search_result.reset();
   // Update the display
-
+  if(displayControls) {
+    displayControls->setRedraw();
+  }
 }

@@ -16,8 +16,8 @@ class WifiControl {
   std::shared_ptr<DisplayControls> displayControls;
   std::shared_ptr<DCCExController::DCCEXProtocol> dccExProtocol;
   DCCEXProtocolDelegateImpl dccDelegate;
-  TCPSocketStream *stream;
-  LoggingStream *logStream;
+  TCPSocketStream *stream = nullptr;
+  LoggingStream *logStream = nullptr;
   uint8_t *ip_address;
 
   bool isConnected = false;

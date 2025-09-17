@@ -21,6 +21,7 @@
 
 queue_t input_queue;
 queue_t led_queue;
+queue_t tcp_fail_queue;
 
 const char keypad_keys[KEYPAD_ROW_NUM][KEYPAD_COLUMN_NUM] = {KEYPAD_KEYS};
 const uint8_t keypad_pin_rows[KEYPAD_ROW_NUM] = KEYPAD_ROW_PINS;  // GIOP19, GIOP18, GIOP5, GIOP17 connect to the row pins
@@ -274,5 +275,6 @@ bool getFromQueue(input_type &input){
 void launchCore1(){
   queue_init(&input_queue, sizeof(input_type), 2);
   queue_init(&led_queue, sizeof(uint8_t), 16); // 16 LEDs
+  queue_init(&tcp_fail_queue, sizeof(size_t), 2); // 2 slots for TCP fail signals
   multicore_launch_core1(core1_entry);
 }

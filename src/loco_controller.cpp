@@ -9,6 +9,8 @@
 #include "pico/stdlib.h"
 #include "wifi_control.h"
 #include "storage_at24cx.h"
+#include "main_core1.h"
+#include "cab_control_menu.h"
 
 std::shared_ptr<LocoController> LocoController::instance;
 
@@ -51,6 +53,7 @@ void LocoController::doButtonAction(uint8_t action, uint8_t value) {
       // WifiControl::getInstance()->dccProtocol()->stopAll();
       break;
   }
+  displayControls->setRedraw();  // Request a redraw of the display
 }
 
 void LocoController::loop() {
@@ -132,6 +135,22 @@ void LocoController::driveLocoLED(uint8_t index) {
   printf("LocoController: driveLoco: driving loco %d\n", loco->getAddress());
   locoControl->setLoco(loco);
   current_loco_index = index;  // Update current loco index
+  
+  turn_off_loco_leds(); // Turn off all LEDs first
+  uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);  
+  if (buttonIndex != 0xff) {
+    printf("Showing LED for button %d\n", buttonIndex);
+    queue_led_command(get_loco_led_from_input(buttonIndex), true);
+
+      auto menu = std::make_shared<CabControlMenu>(displayControls);
+      
+      menu->setLoco(loco);
+      driveLoco(loco);  // Set loco at index 0
+      menu->showMenu();
+
+  } else {
+    printf("No button assigned for this loco\n");
+  }
 }
 
 uint8_t LocoController::getLocoButtonIndex(DCCExController::Loco *loco) {

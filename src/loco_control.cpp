@@ -104,9 +104,13 @@ void LocoControl::change_direction(bool forward) {
                                                          loco->getDirection());
 }
 
-bool LocoControl::doMoveLeftAction() { return false; }
+bool LocoControl::doMoveLeftAction() { 
+  return false; 
+}
 
-bool LocoControl::doMoveRightAction() { return false; }
+bool LocoControl::doMoveRightAction() { 
+  return false; 
+}
 
 bool LocoControl::doKeyAction(int8_t action) {
   if(displayControls->isOnRosterMenu()) {
@@ -181,7 +185,7 @@ void LocoControl::doPotAction(uint16_t value) {
 }
 
 void LocoControl::doButtonAction(uint8_t action, uint8_t value) {
-    if(displayControls->isOnRosterMenu()) {
+  if(displayControls->isOnRosterMenu()) {
     return; // Ignore key actions in roster menu
   }
 

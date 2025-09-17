@@ -11,7 +11,7 @@
 #include "pico/time.h"
 #include "wifi_control.h"
 #include "loco_controller.h"
-
+#include "mui_menu_custom_items.h"
 
 void CabControlMenu::showMenu() {
   displayControls->showScreen(shared_from_this(),
@@ -24,6 +24,7 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
     return;
   }
   muiItemId root_page;
+
   if (loco->getName() != nullptr && strlen(loco->getName())) {
     root_page = makePage(loco->getName());
   } else {
@@ -40,13 +41,14 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
   u8g2_SetFont(&u8g2, PAGE_TITLE_FONT_SMALL);
   int item_y_offset = u8g2_GetMaxCharHeight(&u8g2);
 
-  addMuippItem(new MuiItem_U8g2_ValuesList(
+  addMuippItem(new Custom_U8g2_ValuesList(
                    u8g2, speed_idx, "Speed",
                    [&]() {
                      speed_str = std::to_string(loco->getSpeed());
                      return speed_str.data();
                    },
-                   [&]() {}, [&]() {}, 0, u8g2_GetDisplayWidth(&u8g2),
+                   0, 
+                   u8g2_GetDisplayWidth(&u8g2),
                    item_y_offset,  // cursor point
                    PAGE_TITLE_FONT, text_align_t::left, text_align_t::right,
                    text_align_t::top),  // justify value to the right
@@ -56,30 +58,32 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
   item_y_offset += u8g2_GetMaxCharHeight(&u8g2);
 
   addMuippItem(
-      new MuiItem_U8g2_ValuesList(
+      new Custom_U8g2_ValuesList(
           u8g2, nextIndex(), "Driving",
           [&]() {
             direction_str = loco->getDirection() == DCCExController::Forward
                                 ? "Forward"
                                 : "Reverse";
             return direction_str.data();
-          },  // get a string of current QC mode
-          [&]() {
-            loco->setDirection(loco->getDirection() == DCCExController::Forward
-                                   ? DCCExController::Reverse
-                                   : DCCExController::Forward);
-          },  // next available voltage
-          [&]() {
-            loco->setDirection(loco->getDirection() == DCCExController::Forward
-                                   ? DCCExController::Reverse
-                                   : DCCExController::Forward);
-          },  // prev available voltage
-          0, u8g2_GetDisplayWidth(&u8g2), item_y_offset,  // cursor point
+          },  
+          0, 
+          u8g2_GetDisplayWidth(&u8g2), 
+          item_y_offset,  // cursor point
           PAGE_TITLE_FONT, text_align_t::left, text_align_t::right,
           text_align_t::top),  // justify value to the right
       root_page);
 
-  pageAutoSelect(root_page, speed_idx);
+  item_y_offset += u8g2_GetMaxCharHeight(&u8g2);
+
+  auto functionsIndex = nextIndex();
+  addMuippItem(
+      new MuiItem_U8g2_ActionButton(u8g2, functionsIndex,
+      mui_event_t::custom1,
+       "Functions", MAIN_MENU_FONT1,
+      0, u8g2_GetDisplayHeight(&u8g2), text_align_t::left, text_align_t::bottom)
+      , root_page);
+
+  pageAutoSelect(root_page, functionsIndex);
 
   addMuippItem(
       new MuiItem_U8g2_BackButton(u8g2, nextIndex(), "Back", MAIN_MENU_FONT1),
@@ -98,7 +102,9 @@ void CabControlMenu::setLoco(DCCExController::Loco *loco) {
   }
 }
 
-bool CabControlMenu::doAction() { return true; }
+bool CabControlMenu::doAction() { 
+  return true; 
+}
 
 bool CabControlMenu::doLongPressAction() {
   displayControls->exitMenu();
