@@ -28,7 +28,7 @@ class CabControlMenu: public MuiMenu, public std::enable_shared_from_this<CabCon
     
     void buildMenu(u8g2_t &u8g2) override;
     void showMenu() override;
-    bool doAction() override;
+    bool doAction(mui_event event) override;
     bool doLongPressAction() override;
     bool doMoveLeftAction() override;
     bool doMoveRightAction() override;

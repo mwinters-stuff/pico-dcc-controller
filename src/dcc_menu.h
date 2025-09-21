@@ -52,7 +52,7 @@ class DCCMenu : public MuiMenu, public std::enable_shared_from_this<DCCMenu> {
 
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
-  bool doAction() override;
+  bool doAction(mui_event event) override;
   std::string getName() override  { return "TestMenu"; };
 
 

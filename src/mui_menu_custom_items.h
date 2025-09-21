@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+using namespace muipp;
 
 class Custom_U8g2_DynamicScrollList : public Item_U8g2_Generic, public MuiItem {
   stringbyindex_cb_t _cb;
@@ -53,7 +54,7 @@ public:
   // event handler
   mui_event muiEvent(mui_event e) override;
 
-  void render(const MuiItem* parent) override;
+  void render(const MuiItem* parent, void* r = nullptr) override;
 };
 
 class Custom_U8g2_ValuesList : public Item_U8g2_Generic, public MuiItem {
@@ -81,7 +82,30 @@ public:
       MuiItem(id, label, {false,true}), _getCurrent(getCurrent), _xval(xval), _val_halign(val_halign) {}
 
   // render method
-  void render(const MuiItem* parent) override;
+  void render(const MuiItem* parent, void* r = nullptr) override;
+  // event handler
+  mui_event muiEvent(mui_event e) override;
+};
+
+
+class Custom_U8g2_ActionButton : public Item_U8g2_Generic, public MuiItem {
+protected:
+  std::function<void(void)> _action;
+public:
+  Custom_U8g2_ActionButton(
+    u8g2_t &u8g2, 
+    muiItemId id,
+    std::function<void(void)> onAction,                                             // button action
+    const char* lbl,                                                              // button label
+    const uint8_t* font = nullptr, u8g2_uint_t x = 0, u8g2_uint_t y = 0,          // look and position
+    muipp::text_align_t halign = muipp::text_align_t::left, muipp::text_align_t valign = muipp::text_align_t::baseline
+    )
+    : Item_U8g2_Generic(u8g2, font, x, y, halign, valign),
+      MuiItem(id, lbl, {false, false}), _action(onAction) {};
+
+  // render method
+  void render(const MuiItem* parent, void* r = nullptr) override;
+
   // event handler
   mui_event muiEvent(mui_event e) override;
 };

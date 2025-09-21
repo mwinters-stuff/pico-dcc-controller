@@ -40,7 +40,7 @@ class LocoController: public ActionInterface, public std::enable_shared_from_thi
       return LocoController::instance;
     }
 
-    bool doAction() override;
+    bool doAction(mui_event event) override;
     bool doLongPressAction() override;
     bool doMoveLeftAction() override;
     bool doMoveRightAction() override;

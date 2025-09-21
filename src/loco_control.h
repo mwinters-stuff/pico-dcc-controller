@@ -42,7 +42,7 @@ class LocoControl: public ActionInterface, public std::enable_shared_from_this<L
 
     void init(std::shared_ptr<DisplayControls> displayControls);
 
-    bool doAction() override;
+    bool doAction(mui_event event) override;
     bool doLongPressAction() override;
     bool doMoveLeftAction() override;
     bool doMoveRightAction() override;

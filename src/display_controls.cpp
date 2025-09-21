@@ -96,7 +96,7 @@ void DisplayControls::loop() {
           if (e.eid == mui_event_t::quitMenu) {
             exitMenu();
           } else {
-            if (!currentMenu->doAction()) {
+            if (!currentMenu->doAction(e)) {
               exitMenu();
             }
           }

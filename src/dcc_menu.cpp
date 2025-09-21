@@ -96,7 +96,7 @@ void DCCMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-bool DCCMenu::doAction(){
+bool DCCMenu::doAction(mui_event event){
   switch(selectedItem.value){
     case miv_RefreshRoster:
       WifiControl::getInstance()->dccProtocol()->refreshRoster();

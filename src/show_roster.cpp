@@ -139,7 +139,7 @@ void ShowRosterMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-bool ShowRosterMenu::doAction(){
+bool ShowRosterMenu::doAction(mui_event event){
   switch(selectedItem->value){
     case 0xff:
       // back button pressed

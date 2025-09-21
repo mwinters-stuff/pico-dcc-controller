@@ -33,7 +33,7 @@ class WifiScan : public MuiMenu, public std::enable_shared_from_this<WifiScan> {
 
   void buildMenu(u8g2_t &u8g2) override;
   void buildPassEntry(u8g2_t &u8g2);
-  bool doAction() override;
+  bool doAction(mui_event event) override;
   void showMenu() override;
   std::string getName() override  { return "WifiScan"; };
 

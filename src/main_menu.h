@@ -42,7 +42,7 @@ class MainMenu : public MuiMenu, public std::enable_shared_from_this<MainMenu> {
 
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
-  bool doAction() override;
+  bool doAction(mui_event event) override;
   void clearAction() override;
 
 

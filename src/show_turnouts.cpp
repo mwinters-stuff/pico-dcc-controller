@@ -68,8 +68,8 @@ void ShowTurnoutsMenu::buildMenu(u8g2_t &u8g2) {
       MAIN_MENU_ROWS,  // offset for each line of text and total number of lines
                        // in menu to dispaly
       MAIN_MENU_X_OFFSET, MAIN_MENU_Y_OFFSET,  // x,y cursor
-      MAIN_MENU_FONT3,
-      MAIN_MENU_FONT3  // font to use printin highlighted / non-highlighted item
+      MAIN_MENU_FONT1,
+      MAIN_MENU_FONT1  // font to use printin highlighted / non-highlighted item
   );
 
   // let's set specific options for this meuItem
@@ -108,7 +108,7 @@ void ShowTurnoutsMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-bool ShowTurnoutsMenu::doAction(){
+bool ShowTurnoutsMenu::doAction(mui_event event){
   switch(selectedItem.value){
     case 0xff:
       // back button pressed

@@ -191,6 +191,6 @@ void WifiScan::buildPassEntry(u8g2_t &u8g2) {
 }
 
 
-bool WifiScan::doAction() {
+bool WifiScan::doAction(mui_event event) {
   return true;
 }

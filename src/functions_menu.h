@@ -38,7 +38,7 @@ class FunctionsMenu : public MuiMenu, public std::enable_shared_from_this<Functi
   
   void showMenu() override;
   void buildMenu(u8g2_t &u8g2) override;
-  bool doAction() override;
+  bool doAction(mui_event event) override;
   bool doLongPressAction() override;
   void clearAction() override;
   std::string getName() override  { return "FunctionsMenu"; };

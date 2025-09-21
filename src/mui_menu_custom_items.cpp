@@ -3,7 +3,7 @@
 
 
 
-void Custom_U8g2_DynamicScrollList::render(const MuiItem* parent){
+void Custom_U8g2_DynamicScrollList::render(const MuiItem* parent, void* r){
   // printf("DynScrl print lst of %u items\n", _size_cb());
 
   setCursor(_x, _y);
@@ -85,7 +85,7 @@ mui_event Custom_U8g2_DynamicScrollList::muiEvent(mui_event e){
 //  ***
 //  MuiItem_U8g2_ValuesList
 
-void Custom_U8g2_ValuesList::render(const MuiItem* parent){
+void Custom_U8g2_ValuesList::render(const MuiItem* parent, void* r){
   if (_font)
     u8g2_SetFont(&_u8g2, _font);
 
@@ -133,5 +133,26 @@ mui_event Custom_U8g2_ValuesList::muiEvent(mui_event e){
   // }
 
   // by default, return noop
+  return {};
+}
+
+
+void Custom_U8g2_ActionButton::render(const MuiItem* parent, void* r){
+  if (_font)
+    u8g2_SetFont(&_u8g2, _font);
+
+  // draw button
+  auto a = getXoffset(name);
+  u8g2_DrawButtonUTF8(&_u8g2, a, _y, focused ? U8G2_BTN_INV : 0, 0, 1, 1, name);
+}
+
+mui_event Custom_U8g2_ActionButton::muiEvent(mui_event e){
+  switch(e.eid){
+    // actions 'select' and 'enter' will trigger defined event
+    case mui_event_t::select :
+    case mui_event_t::enter :
+      _action();
+      return mui_event(mui_event_t::noop);
+  }
   return {};
 }

@@ -101,7 +101,7 @@ void DCCConnectionMenu::buildMenu(u8g2_t &u8g2) {
   menuStart(root_page);
 }
 
-bool DCCConnectionMenu::doAction() {
+bool DCCConnectionMenu::doAction(mui_event event) {
   if (selectedIndex != -1) {
     auto mdnsScan = MDNSScan::getInstance();
     auto addresses = mdnsScan->getAddresses();

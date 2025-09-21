@@ -32,7 +32,7 @@ void LocoController::init(std::shared_ptr<DisplayControls> displayControls) {
   this->displayControls = displayControls;
 }
 
-bool LocoController::doAction() { return true; }
+bool LocoController::doAction(mui_event event) { return true; }
 
 void LocoController::doButtonAction(uint8_t action, uint8_t value) {
   switch (action) {

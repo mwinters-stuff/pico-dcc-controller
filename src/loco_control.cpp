@@ -211,5 +211,5 @@ void LocoControl::loop() {
   }
 }
 
-bool LocoControl::doAction() { return false; }
+bool LocoControl::doAction(mui_event event) { return false; }
 bool LocoControl::doLongPressAction() { return false; }

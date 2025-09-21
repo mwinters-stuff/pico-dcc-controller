@@ -121,7 +121,7 @@ void FunctionsMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-bool FunctionsMenu::doAction(){
+bool FunctionsMenu::doAction(mui_event event){
   switch(selectedItem.value){
     case 0xff:
       // back button pressed

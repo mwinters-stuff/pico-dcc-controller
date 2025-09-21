@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-
+#include "muiplusplus.hpp"
 
 
 class ActionInterface  {
@@ -12,7 +12,7 @@ class ActionInterface  {
   ActionInterface(){};
   virtual ~ActionInterface(){};
 
-  virtual bool doAction() = 0;
+  virtual bool doAction(mui_event event) = 0;
   virtual bool doLongPressAction() { return true; };
   virtual bool doMoveLeftAction() { return true; };
   virtual bool doMoveRightAction() { return true; };

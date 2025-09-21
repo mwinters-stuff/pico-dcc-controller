@@ -77,8 +77,12 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
 
   auto functionsIndex = nextIndex();
   addMuippItem(
-      new MuiItem_U8g2_ActionButton(u8g2, functionsIndex,
-      mui_event_t::custom1,
+      new Custom_U8g2_ActionButton(u8g2, functionsIndex,
+      [this]() {
+        // go to functions menu
+        printf("Functions button pressed\n");
+        displayControls->showFunctionsMenu(shared_from_this(), loco);
+      },
        "Functions", MAIN_MENU_FONT1,
       0, u8g2_GetDisplayHeight(&u8g2), text_align_t::left, text_align_t::bottom)
       , root_page);
@@ -102,7 +106,7 @@ void CabControlMenu::setLoco(DCCExController::Loco *loco) {
   }
 }
 
-bool CabControlMenu::doAction() { 
+bool CabControlMenu::doAction(mui_event event) { 
   return true; 
 }
 

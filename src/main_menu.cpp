@@ -92,7 +92,7 @@ void MainMenu::buildMenu(u8g2_t &u8g2) {
 
 }
 
-bool MainMenu::doAction(){
+bool MainMenu::doAction(mui_event event){
   switch(selectedItem.value){
     case miv_ConnectToDCC:
       connectionMenu = std::make_shared<DCCConnectionMenu>(displayControls);

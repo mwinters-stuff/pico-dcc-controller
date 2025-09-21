@@ -79,14 +79,13 @@ public:
         pbuf_remove_header(recv_buffer, 1);
         if (recv_buffer->len == 0) {
             // printf("Freeing buffer %d %d %d\n", recv_buffer->len, recv_buffer->tot_len, recv_buffer->ref);
-             fflush(stdout);
+            //  fflush(stdout);
             struct pbuf *next = recv_buffer->next;
             pbuf_free(recv_buffer);
             recv_buffer = next;
             // printf("Buffer freed\n");
-             fflush(stdout);
+            //  fflush(stdout);
         }
-        fflush(stdout);
         return byte;
     }
 
@@ -161,12 +160,12 @@ public:
     // Call this periodically (e.g. in your main loop)
     void checkHeartbeatTimeout() {
         if (awaiting_heartbeat) {
-            uint32_t elapsed = absolute_time_diff_us(get_absolute_time() , heartbeat_sent_time) / 1000; // Convert to ms
-            if (elapsed > 2000) { // 2 seconds
+            int64_t elapsed = absolute_time_diff_us(heartbeat_sent_time, get_absolute_time() );
+            if (elapsed > 10000000) { // 10 seconds
                 printf("Heartbeat timeout\n");
+                awaiting_heartbeat = false;
                 err_t timeout_err = ERR_TIMEOUT;
                 queue_try_add(&tcp_fail_queue, &timeout_err);
-                awaiting_heartbeat = false;
             }
         }
     }
