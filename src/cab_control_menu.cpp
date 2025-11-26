@@ -12,6 +12,7 @@
 #include "wifi_control.h"
 #include "loco_controller.h"
 #include "mui_menu_custom_items.h"
+#include "functions_menu.h"
 
 void CabControlMenu::showMenu() {
   displayControls->showScreen(shared_from_this(),
@@ -81,8 +82,10 @@ void CabControlMenu::buildMenu(u8g2_t &u8g2) {
       [this]() {
         // go to functions menu
         printf("Functions button pressed\n");
-        displayControls->showFunctionsMenu(shared_from_this(), loco);
-      },
+        auto connectionMenu = std::make_shared<FunctionsMenu>(displayControls);
+        connectionMenu->setLoco(loco);
+        connectionMenu->showMenu();
+        },
        "Functions", MAIN_MENU_FONT1,
       0, u8g2_GetDisplayHeight(&u8g2), text_align_t::left, text_align_t::bottom)
       , root_page);

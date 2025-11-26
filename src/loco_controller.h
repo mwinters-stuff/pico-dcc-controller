@@ -57,6 +57,7 @@ class LocoController: public ActionInterface, public std::enable_shared_from_thi
 
     void driveLocoLED(uint8_t loco_led_index);
     void driveLoco(DCCExController::Loco *loco);
+    void driveLocoMenu(DCCExController::Loco *loco);
 
     uint8_t getLocoButtonIndex(DCCExController::Loco *loco);
 };

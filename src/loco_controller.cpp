@@ -135,22 +135,25 @@ void LocoController::driveLocoLED(uint8_t index) {
   printf("LocoController: driveLoco: driving loco %d\n", loco->getAddress());
   locoControl->setLoco(loco);
   current_loco_index = index;  // Update current loco index
-  
+  driveLocoMenu(loco);
+}
+
+void LocoController::driveLocoMenu(DCCExController::Loco *loco) {
   turn_off_loco_leds(); // Turn off all LEDs first
   uint8_t buttonIndex = LocoController::getInstance()->getLocoButtonIndex(loco);  
   if (buttonIndex != 0xff) {
     printf("Showing LED for button %d\n", buttonIndex);
     queue_led_command(get_loco_led_from_input(buttonIndex), true);
-
-      auto menu = std::make_shared<CabControlMenu>(displayControls);
-      
-      menu->setLoco(loco);
-      driveLoco(loco);  // Set loco at index 0
-      menu->showMenu();
-
   } else {
     printf("No button assigned for this loco\n");
   }
+
+  auto menu = std::make_shared<CabControlMenu>(displayControls);
+  
+  menu->setLoco(loco);
+  driveLoco(loco);  // Set loco at index 0
+  menu->showMenu();
+
 }
 
 uint8_t LocoController::getLocoButtonIndex(DCCExController::Loco *loco) {

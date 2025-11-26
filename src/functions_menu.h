@@ -18,9 +18,12 @@ class FunctionsMenu : public MuiMenu, public std::enable_shared_from_this<Functi
   private:
   struct menuItem{
     uint8_t value;
-    const char* label;
+    std::string label;
+    bool momentary{false};
+    bool active{false};
   };
   DCCExController::Loco* loco;
+  char title[32];
  protected:
  menuItem selectedItem;
   std::vector<menuItem> menu;

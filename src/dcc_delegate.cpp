@@ -40,6 +40,12 @@ void DCCEXProtocolDelegateImpl::receivedLocoBroadcast(
     int functionMap) {
   printf("Loco Broadcast: Address=%d, Speed=%d, Direction=%d, FunctionMap=%d\n",
          address, speed, direction, functionMap);
+  DCCExController::Loco *loco = DCCExController::Loco::getByAddress(address);
+  if (loco) {
+    loco->setSpeed(speed);
+    loco->setDirection(direction);
+    loco->setFunctionStates(functionMap);
+  }
 }
 
 void DCCEXProtocolDelegateImpl::receivedTrackPower(
